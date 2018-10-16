@@ -23,6 +23,7 @@
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
 import gdal,gdalconst
+import numpy as np
 import struct
 
 
