@@ -69,3 +69,33 @@ def GetValueAt(X,Y,filename):
 
     #raise ValueError("Unexpected (Lon,Lat) values.")
     return None
+
+def GDAL2Numpy(pathname, band=1):
+    """
+    GDAL2Numpy
+    """
+    dataset = gdal.Open(pathname, gdalconst.GA_ReadOnly)
+    if dataset:
+        band = dataset.GetRasterBand(band)
+        cols = dataset.RasterXSize
+        rows = dataset.RasterYSize
+        geotransform = dataset.GetGeoTransform()
+        projection = dataset.GetProjection()
+        nodata = band.GetNoDataValue()
+        bandtype = gdal.GetDataTypeName(band.DataType)
+        wdata = band.ReadAsArray(0, 0, cols, rows)
+        # translate nodata as Nan
+        if not wdata is None:
+            if bandtype in ('Float32', 'Float64', 'CFloat32', 'CFloat64'):
+                if not nodata is None and abs(nodata) > 3.4e38:
+                    wdata[abs(wdata) > 3.4e38] = np.nan
+                elif not nodata is None:
+                    wdata[wdata == nodata] = np.nan
+            elif bandtype in ('Byte', 'Int16', 'Int32', 'UInt16', 'UInt32', 'CInt16', 'CInt32'):
+                wdata = wdata.astype("Float32", copy=False)
+                wdata[wdata == nodata] = np.nan
+        band = None
+        dataset = None
+        return (wdata, geotransform, projection)
+    print("file %s not exists!" % (pathname))
+    return (None, None, None)
