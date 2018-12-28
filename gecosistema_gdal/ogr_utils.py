@@ -22,7 +22,7 @@
 #
 # Created:     28/12/2018
 # -------------------------------------------------------------------------------
-import ogr
+import os,sys,ogr
 
 def GetFeatures(fileshp):
     """
