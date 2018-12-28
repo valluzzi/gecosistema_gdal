@@ -147,14 +147,14 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
         return dst_dataset
     return False
 
-def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", xres=-1, yres=-1, interpolation="bilinear", t_srs="",
+def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, xres=-1, yres=-1, interpolation="bilinear", t_srs="",
              compress="", extraparams="", verbose=False):
     """
     gdalwarp -q -multi -cutline "{fileshp}" -crop_to_cutline -tr {pixelsize} {pixelsize} -of GTiff "{src_dataset}" "{dst_dataset}"
     """
 
     command  = """gdalwarp -multi -overwrite -q -of {of} """
-    command += """-dstnodata -9999 """
+    command += """-dstnodata {nodata} """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
     command += """--config GDAL_CACHEMAX 90% -wm 500 """
     command += """-cutline "{cutline}" -crop_to_cutline """ if cutline else ""
@@ -174,6 +174,7 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", xres=-1, yres=
         "src_dataset": src_dataset,
         "dst_dataset": dst_dataset,
         "of": of,
+        "nodata": nodata,
         "xres": xres,
         "yres": yres,
         "interpolation": interpolation,
