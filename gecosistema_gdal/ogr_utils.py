@@ -61,7 +61,6 @@ def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0):
         layer = dataset.GetLayer(layername)
         layerDefinition = layer.GetLayerDefn()
         fieldnames = [layerDefinition.GetFieldDefn(j).GetName().lower() for j in range(layerDefinition.GetFieldCount())]
-        print(fieldnames)
         if attrname.lower() in fieldnames:
             for feature in layer:
                 if feature.GetField(attrname) == attrvalue:
