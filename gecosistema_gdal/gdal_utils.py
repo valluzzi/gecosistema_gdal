@@ -122,7 +122,7 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
     else:
         predictor = 1
 
-    if not dst_dataset or samepath(src_dataset, dst_dataset):
+    if not dst_dataset: # or samepath(src_dataset, dst_dataset):
         translate_inplace = True
         dst_dataset = justpath(src_dataset) + "/" + tempname("tmp_")
 
@@ -165,7 +165,7 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", xres=-1, yres=
     command += """{extraparams}"""
 
     translate_inplace = False
-    if not dst_dataset or samepath(src_dataset, dst_dataset):
+    if not dst_dataset:# or samepath(src_dataset, dst_dataset):
         translate_inplace = True
         dst_dataset = justpath(src_dataset) + "/" + tempname("tmp_")
 
