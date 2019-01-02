@@ -102,6 +102,75 @@ def GDAL2Numpy(pathname, band=1):
     print("file %s not exists!" % (pathname))
     return (None, None, None)
 
+def Numpy2GTiff(arr, geotransform, projection, filename, nodata=-9999):
+    """
+    Numpy2GTiff
+    """
+    if isinstance(arr, np.ndarray):
+        rows, cols = arr.shape
+        if rows > 0 and cols > 0:
+            dtype = str(arr.dtype)
+            if dtype in ["uint8"]:
+                fmt = gdal.GDT_Byte
+            elif dtype in ["uint16"]:
+                fmt = gdal.GDT_UInt16
+            elif dtype in ["uint32"]:
+                fmt = gdal.GDT_UInt32
+            elif dtype in ["float32"]:
+                fmt = gdal.GDT_Float32
+            elif dtype in ["float64"]:
+                fmt = gdal.GDT_Float64
+            else:
+                fmt = gdal.GDT_Float64
+
+            driver = gdal.GetDriverByName("GTiff")
+            dataset = driver.Create(filename, cols, rows, 1, fmt)
+            if (geotransform != None):
+                dataset.SetGeoTransform(geotransform)
+            if (projection != None):
+                dataset.SetProjection(projection)
+            dataset.GetRasterBand(1).SetNoDataValue(nodata)
+            dataset.GetRasterBand(1).WriteArray(arr)
+            # ?dataset.GetRasterBand(1).ComputeStatistics(0)
+            dataset = None
+            return filename
+    return None
+
+
+def Numpy2AAIGrid(data, geotransform, filename, nodata=-9999):
+    """
+    Numpy2AAIGrid
+    """
+    (x0, pixelXSize, rot, y0, rot, pixelYSize) = geotransform
+    (rows, cols) = data.shape
+    stream = open(filename, "wb")
+    stream.write("ncols         %d\r\n" % (cols))
+    stream.write("nrows         %d\r\n" % (rows))
+    stream.write("xllcorner     %d\r\n" % (x0))
+    stream.write("yllcorner     %d\r\n" % (y0 + pixelYSize * rows))
+    stream.write("cellsize      %d\r\n" % (pixelXSize))
+    stream.write("NODATA_value  %d\r\n" % (nodata))
+    template = ("%.7g " * cols) + "\r\n"
+    for row in data:
+        line = template % tuple(row.tolist())
+        stream.write(line)
+    stream.close()
+    return filename
+
+def Numpy2Gdal(data, geotransform, projection, filename, nodata=-9999):
+    """
+    Numpy2Gdal
+    """
+    ext = os.path.splitext(filename)[1][1:].strip().lower()
+    mkdirs(justpath(filename))
+    if ext == "tif" or ext == "tiff":
+        return Numpy2GTiff(data, geotransform, projection, filename, nodata)
+    elif ext == "asc":
+        return Numpy2AAIGrid(data, geotransform, filename, nodata)
+    else:
+        return ""
+
+
 def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres=-1, yres=-1, compress=True,
                    verbose=False):
     """
