@@ -270,7 +270,7 @@ def gdal_mosaic(workdir, fileout, verbose=False):
     """
     gdal_mosaic
     """
-    filenames = ls(workdir, ".*\.tif$", False)
+    filenames = ls(workdir, ".*\.tif$", True)
     command = """gdalwarp -multi -overwrite -co "COMPRESS=LZW" -co "PREDICTOR=3" -of GTiff """
     counter = 0
     env = {"fileout": fileout}
