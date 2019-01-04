@@ -265,3 +265,19 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
         gdal_translate(dst_dataset, dst_dataset, of, "Float32", xres, yres, compress=True, verbose=verbose)
 
     return dst_dataset
+
+def gdal_mosaic(workdir, fileout, verbose=False):
+    """
+    gdal_mosaic
+    """
+    filenames = ls(workdir, ".*\.tif$", False)
+    command = """gdalwarp -multi -overwrite -co "COMPRESS=LZW" -co "PREDICTOR=3" -of GTiff """
+    counter = 0
+    env = {"fileout": fileout}
+    for filename in filenames:
+        command += """"{filename%s}" """ % (counter)
+        env["filename%s" % (counter)] = filename
+        counter += 1
+    command += """"{fileout}" """
+
+    return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
