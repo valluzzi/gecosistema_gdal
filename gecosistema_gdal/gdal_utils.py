@@ -266,17 +266,16 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
 
     return dst_dataset
 
-def gdal_mosaic(workdir, fileout, filter=r'.*\.tif$',verbose=False):
+def gdal_mosaic(workdir, fileout, verbose=False):
     """
     gdal_mosaic
     """
-    filenames = ls(workdir,filter, True)
-    #command = """gdalwarp -multi -overwrite -co "COMPRESS=LZW" -co "PREDICTOR=3" -of GTiff """
+    filevrt = forceext(fileout,"vrt")
+    env = {"filevrt": filevrt, "fileout": fileout}
     command = """gdalbuildvrt "{filevrt}" "{workdir}/*.tif" """
-    env = {"filevrt":filevrt,"fileout": fileout}
     Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
-    command = """"gdal_tanslate -of GTiff "{filevrt}" "{fileout}" """
+    command = """"gdal_translate -of GTiff "{filevrt}" "{fileout}" """
 
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
