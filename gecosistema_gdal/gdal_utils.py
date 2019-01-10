@@ -271,8 +271,8 @@ def gdal_mosaic(workdir, fileout, verbose=False):
     gdal_mosaic
     """
     filevrt = forceext(fileout,"vrt")
-    env = {"filevrt": filevrt, "fileout": fileout}
-    command = """gdalbuildvrt "{filevrt}" "{workdir}/*.tif" """
+    env = {"filevrt": filevrt, "fileout": fileout,"workdir":workdir}
+    command = """gdalbuildvrt -overwrite -q "{filevrt}" "{workdir}/*.tif" """
     Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
     command = """"gdal_translate -of GTiff "{filevrt}" "{fileout}" """
