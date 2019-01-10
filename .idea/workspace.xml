@@ -50,7 +50,7 @@
         <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="750">
-              <caret line="290" column="51" selection-start-line="290" selection-start-column="51" selection-end-line="290" selection-end-column="51" />
+              <caret line="290" column="40" lean-forward="true" selection-start-line="290" selection-start-column="40" selection-end-line="290" selection-end-column="40" />
               <folding>
                 <element signature="e#931#952#0" expanded="true" />
               </folding>
@@ -195,7 +195,7 @@
     <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="750">
-          <caret line="290" column="51" selection-start-line="290" selection-start-column="51" selection-end-line="290" selection-end-column="51" />
+          <caret line="290" column="40" lean-forward="true" selection-start-line="290" selection-start-column="40" selection-end-line="290" selection-end-column="40" />
           <folding>
             <element signature="e#931#952#0" expanded="true" />
           </folding>
