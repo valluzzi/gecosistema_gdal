@@ -282,13 +282,13 @@ def gdal_mosaic(workdir, fileout, filter=r'.*\.tif$',verbose=False):
 
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
-def ogr2ogr(fileshp, fileout="", format="sqlite"):
+def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):
     """
     ogr2ogr
     ogr2ogr -f "sqlite" output.sqlite  input.shp
     """
     fileout = fileout if fileout else forceext(fileshp,"sqlite")
-    command = """ogr2ogr -f "{format}" "{fileout}" "{fileshp}" """
+    command = """ogr2ogr -skipfailures --overwrite -f "{format}" "{fileout}" "{fileshp}" """
     env = {"format":format,"fileshp":fileshp,"fileout":fileout}
 
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
