@@ -271,14 +271,12 @@ def gdal_mosaic(workdir, fileout, filter=r'.*\.tif$',verbose=False):
     gdal_mosaic
     """
     filenames = ls(workdir,filter, True)
-    command = """gdalwarp -multi -overwrite -co "COMPRESS=LZW" -co "PREDICTOR=3" -of GTiff """
-    counter = 0
-    env = {"fileout": fileout}
-    for filename in filenames:
-        command += """"{filename%s}" """ % (counter)
-        env["filename%s" % (counter)] = filename
-        counter += 1
-    command += """"{fileout}" """
+    #command = """gdalwarp -multi -overwrite -co "COMPRESS=LZW" -co "PREDICTOR=3" -of GTiff """
+    command = """gdalbuildvrt "{filevrt}" "{workdir}/*.tif" """
+    env = {"filevrt":filevrt,"fileout": fileout}
+    Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
+
+    command = """"gdal_tanslate -of GTiff "{filevrt}" "{fileout}" """
 
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
