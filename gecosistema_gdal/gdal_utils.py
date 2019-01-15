@@ -179,7 +179,7 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
     translate_inplace = False
     command = """gdal_translate -q -of {of} -ot {ot} """
     command += """-tr {xres} {yres} """ if xres > 0 and yres > 0 else ""
-    command += """--config GDAL_CACHEMAX 90% """
+    #command += """--config GDAL_CACHEMAX 90% """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -co "BIGTIFF=YES" """
     command += """-co "COMPRESS=LZW" -co "PREDICTOR={predictor}" """
     command += """"{src_dataset}" "{dst_dataset}" """
