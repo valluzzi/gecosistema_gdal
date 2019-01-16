@@ -277,7 +277,7 @@ def gdal_mosaic(workdir, fileout, verbose=False):
 
     command = """gdal_translate -of GTiff "{filevrt}" "{fileout}" """
 
-    return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
+    return Exec(command, env, precond=[], postcond=[fileout], remove=[filevrt], skipIfExists=False, verbose=verbose)
 
 def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):
     """
