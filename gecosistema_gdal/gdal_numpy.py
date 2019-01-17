@@ -23,12 +23,11 @@
 # Created:     03/08/2017
 # -------------------------------------------------------------------------------
 import numpy as np
-from .filesystem import *
+
 import datetime
 import threading
-
 import gdal
-
+from gecosistema_core import *
 
 def GDAL_blocksize(filename):
     """
