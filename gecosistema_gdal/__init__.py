@@ -24,4 +24,5 @@
 # -------------------------------------------------------------------------------
 from .ogr_utils import *
 from .gdal_utils import *
+from .gdal_numpy import *
 from .taudem import *

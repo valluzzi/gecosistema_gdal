@@ -61,4 +61,12 @@ def PitRemove(demfile, felfile="", n=-1, skipIfExists=False, verbose=False):
     felfile = mpiexec(command, env, n, precond=[demfile], postcond=[felfile], skipIfExists=skipIfExists,
                       verbose=verbose)
 
+    # Fix nodata if needed
+    if felfile and GetNoData(felfile) != GetNoData(demfile):
+        nodata = GetNoData(demfile)
+        if verbose:
+            print("fixing nodata with %s" % nodata)
+        gdal_numpy("f=np.where(abs(f)>1e+38,{nodata},f)", {"f": felfile, "nodata": nodata})
+        SetNoData(felfile, nodata)
+
     return felfile

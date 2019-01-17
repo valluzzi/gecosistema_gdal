@@ -72,6 +72,29 @@ def GetValueAt(X,Y,filename):
     #raise ValueError("Unexpected (Lon,Lat) values.")
     return None
 
+def GetNoData(filename):
+    """
+    GetNoData
+    """
+    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
+    if dataset:
+        band = dataset.GetRasterBand(1)
+        nodata = band.GetNoDataValue()
+        data, band, dataset = None, None, None
+        return nodata
+    return None
+
+def SetNoData(filename, nodata):
+    """
+    SetNoData
+    """
+    dataset = gdal.Open(filename, gdalconst.GA_Update)
+    if dataset:
+        band = dataset.GetRasterBand(1)
+        nodata = band.SetNoDataValue(nodata)
+        data, band, dataset = None, None, None
+    return None
+
 def GDAL2Numpy(pathname, band=1):
     """
     GDAL2Numpy
