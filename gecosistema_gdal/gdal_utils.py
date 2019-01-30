@@ -294,7 +294,7 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
     gdal_merge
     """
     filelist   = tempfname("merge",ext="lst")
-    filemosaic = tempfname("merge",ext="tif")
+    filemosaic = forceext(filelist,"tif")
     env = {
         "GDAL_HOME" :GDAL_HOME,
         "filelist": filelist,
