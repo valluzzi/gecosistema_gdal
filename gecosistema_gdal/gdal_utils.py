@@ -312,7 +312,7 @@ def gdal_mosaic(workdir, fileout, ignore_value=0, no_data=-9999, ot="Float32", v
     for filename in ls( workdir, filter =r'.*\.tif'):
         strtofile(filename+"\n",filelist,True)
 
-    command="gdal_merge.py -n {ignore_value} -a_nodata {no_data} -of GTiff -o {filemosaic} --optfile {filelist}"
+    command="python gdal_merge.py -n {ignore_value} -a_nodata {no_data} -of GTiff -o {filemosaic} --optfile {filelist}"
 
     if Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
         return gdal_translate(filemosaic,fileout,ot=ot,compress=True,verbose=verbose)
