@@ -293,8 +293,8 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
     """
     gdal_merge
     """
-    filelist   = tempfname("merge",ext="lst")
-    filemosaic = forceext(filelist,"tif")
+    filelist   = tempfname("merge",ext="lst"))
+    filemosaic = forceext(filelist,"tif"))
     env = {
         "GDAL_HOME" :GDAL_HOME,
         "filelist": filelist,
@@ -309,7 +309,7 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
     for filename in ls( workdir, filter =r'.*\.tif'):
         strtofile(filename+"\n",filelist,True)
 
-    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -of GTiff -o {filemosaic} --optfile {filelist}"""
+    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -of GTiff -o "{filemosaic}" --optfile "{filelist}" """
 
     if Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
         if gdal_translate(filemosaic,fileout,ot=ot,compress=True,verbose=verbose):
