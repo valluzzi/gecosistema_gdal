@@ -289,12 +289,12 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
 
     return dst_dataset
 
-def gdal_mosaic(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_HOME="c:\\Program Files\\GDAL", verbose=False):
+def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_HOME="c:\\Program Files\\GDAL", verbose=False):
     """
-    gdal_mosaic
+    gdal_merge
     """
-    filelist   = forceext(fileout,"list")
-    filemosaic = forceext(fileout,"mosaic.tif")
+    filelist   = tempfname("merge",ext="lst")
+    filemosaic = tempfname("merge",ext="tif")
     env = {
         "GDAL_HOME" :GDAL_HOME,
         "filelist": filelist,
@@ -312,7 +312,9 @@ def gdal_mosaic(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_
     command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -of GTiff -o {filemosaic} --optfile {filelist}"""
 
     if Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
-        return gdal_translate(filemosaic,fileout,ot=ot,compress=True,verbose=verbose)
+        if gdal_translate(filemosaic,fileout,ot=ot,compress=True,verbose=verbose):
+            remove(filemosaic)
+            return fileout
 
     return False
 
