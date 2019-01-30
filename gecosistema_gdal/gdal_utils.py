@@ -289,30 +289,27 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
 
     return dst_dataset
 
-def gdal_mosaic(workdir, fileout, ignore_value=0, no_data=-9999, ot="Float32", verbose=False):
+def gdal_mosaic(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_HOME="c:\\Program Files\\GDAL" verbose=False):
     """
     gdal_mosaic
     """
     filelist   = forceext(fileout,"list")
     filemosaic = forceext(fileout,"mosaic.tif")
     env = {
+        "GDAL_HOME" :GDAL_HOME,
         "filelist": filelist,
         "filemosaic": filemosaic,
         "fileout": fileout,
         "workdir":workdir,
         "ignore_value":ignore_value,
         "no_data":no_data
-        #"extraparams":extraparams
     }
-    #command = """gdalbuildvrt -overwrite -q  "{filevrt}" "{workdir}/*.tif" """
-    #Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
-    #command = """gdal_translate -of GTiff {extraparams} "{filevrt}" "{fileout}" """
-    #Exec(command, env, precond=[], postcond=[fileout], remove=[filevrt], skipIfExists=False, verbose=verbose)
+
     strtofile("", filelist)
     for filename in ls( workdir, filter =r'.*\.tif'):
         strtofile(filename+"\n",filelist,True)
 
-    command="python gdal_merge.py -n {ignore_value} -a_nodata {no_data} -of GTiff -o {filemosaic} --optfile {filelist}"
+    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -of GTiff -o {filemosaic} --optfile {filelist}"""
 
     if Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
         return gdal_translate(filemosaic,fileout,ot=ot,compress=True,verbose=verbose)
