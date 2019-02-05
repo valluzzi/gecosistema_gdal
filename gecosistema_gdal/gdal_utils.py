@@ -367,7 +367,7 @@ def gdalrasterize(fileshp, snap_to, fileout="",  verbose=False):
     gdalrasterize
     """
     fileout  = fileout if fileout  else forceext(fileshp,"tif")
-    filesnap = filesnap if snap_to else forceext(fileshp,"tif")
+    filesnap = snap_to if snap_to else forceext(fileshp,"tif")
 
     (xmin, ymin, xmax, ymax) = GetExtent(filesnap)
     (px,py) =GetPixelSize(filesnap)
