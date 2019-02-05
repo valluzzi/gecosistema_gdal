@@ -81,9 +81,9 @@ def GetExtent(filename):
         "{xmin} {ymin} {xmax} {ymax}"
         m,n  = dataset.RasterYSize,dataset.RasterXSize
         gt = dataset.GetGeoTransform()
-        xmin,px,_,ymin,_,py = gt
+        xmin,px,_,ymax,_,py = gt
         xmax = xmin + n*px
-        ymax = ymin + m*py
+        ymin = ymin + m*py
         return (xmin, ymin, xmax, ymax )
     return (0,0,0,0)
 
