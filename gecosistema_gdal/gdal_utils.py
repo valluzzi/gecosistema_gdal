@@ -372,7 +372,7 @@ def gdal_rasterize(fileshp, snap_to, fileout="",  verbose=False):
     (xmin, ymin, xmax, ymax) = GetExtent(filesnap)
     (px,py) =GetPixelSize(filesnap)
 
-    command = """gdal_rasterize -b 1 -burn 1 -te {xmin} {ymin} {xmax} {ymax} -tr {px} {py} -tap -ot Byte -a_nodata 255 -of GTiff -l {layername} "{fileshp}" "{fileout}" """
+    command = """gdal_rasterize -burn 1 -te {xmin} {ymin} {xmax} {ymax} -tr {px} {py} -tap -ot Byte -a_nodata 255 -of GTiff -l {layername} "{fileshp}" "{fileout}" """
     env = {
         "format":format,
         "fileshp":fileshp,
