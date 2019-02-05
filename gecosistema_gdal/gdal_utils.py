@@ -72,6 +72,18 @@ def GetValueAt(X,Y,filename):
     #raise ValueError("Unexpected (Lon,Lat) values.")
     return None
 
+def GetPixelSize(filename):
+    """
+    GetPixelSize
+    """
+    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
+    if dataset:
+        gt = dataset.GetGeoTransform()
+        _, px, _, _, _, py = gt
+        dataset = None
+        return (px,py)
+    return (0,0)
+
 def GetExtent(filename):
     """
     GetExtent
@@ -85,6 +97,7 @@ def GetExtent(filename):
         xmax = xmin + n*px
         ymin = ymax + m*py
         ymin,ymax = min(ymin,ymax),max(ymin,ymax)
+        dataset=None
         return (xmin, ymin, xmax, ymax )
     return (0,0,0,0)
 
@@ -355,7 +368,8 @@ def gdalrasterize(fileshp, fileout="", snap_to="", verbose=False):
     """
     fileout = fileout if fileout else forceext(fileshp,"tif")
 
-
+    (xmin, ymin, xmax, ymax) = GetExtent(snap_to)
+    (px,py) =GetPixelSize(snap_to)
 
     command = """gdalrasterize -b 1 -burn 1 -te {xmin} {ymin} {xmax} {ymax} -tr {px} {py} -tap -ot Byte -a_nodata 255 -of GTiff -l {layername} "{fileshp}" "{fileout}" """
     env = {
