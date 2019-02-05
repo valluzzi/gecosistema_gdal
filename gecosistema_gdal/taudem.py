@@ -90,7 +90,7 @@ def D8FlowDir(felfile, pfile="", sd8file="", n=-1, skipIfExists=False, verbose=F
     """
     command = """{exe} -fel "{felfile}" -p "{pfile}" -sd8 "{sd8file}" """
 
-    pfile = remove_suffix(felfile, "fel") + "p.tif" if not pfile   else pfile
+    pfile = rem_suffix(felfile, "fel") + "p.tif" if not pfile   else pfile
     sd8file = remove_suffix(felfile, "fel") + "sd8.tif" if not sd8file else sd8file
     mkdirs(justpath(pfile))
     mkdirs(justpath(sd8file))

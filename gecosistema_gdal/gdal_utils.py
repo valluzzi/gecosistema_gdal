@@ -109,6 +109,7 @@ def GDAL2Numpy(pathname, band=1):
         nodata = band.GetNoDataValue()
         bandtype = gdal.GetDataTypeName(band.DataType)
         wdata = band.ReadAsArray(0, 0, cols, rows)
+        print(wdata)
         # translate nodata as Nan
         if not wdata is None:
             if bandtype in ('Float32', 'Float64', 'CFloat32', 'CFloat64'):
@@ -119,6 +120,8 @@ def GDAL2Numpy(pathname, band=1):
             elif bandtype in ('Byte', 'Int16', 'Int32', 'UInt16', 'UInt32', 'CInt16', 'CInt32'):
                 wdata = wdata.astype("Float32", copy=False)
                 wdata[wdata == nodata] = np.nan
+            else:
+                pass
         band = None
         dataset = None
         return (wdata, geotransform, projection)
