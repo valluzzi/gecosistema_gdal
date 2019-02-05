@@ -362,15 +362,15 @@ def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
 
-def gdalrasterize(fileshp, fileout="", snap_to="", verbose=False):
+def gdalrasterize(fileshp, snap_to, fileout="",  verbose=False):
     """
     gdalrasterize
     """
     fileout  = fileout if fileout  else forceext(fileshp,"tif")
     filesnap = filesnap if snap_to else forceext(fileshp,"tif")
 
-    (xmin, ymin, xmax, ymax) = GetExtent(snap_to)
-    (px,py) =GetPixelSize(snap_to)
+    (xmin, ymin, xmax, ymax) = GetExtent(filesnap)
+    (px,py) =GetPixelSize(filesnap)
 
     command = """gdalrasterize -b 1 -burn 1 -te {xmin} {ymin} {xmax} {ymax} -tr {px} {py} -tap -ot Byte -a_nodata 255 -of GTiff -l {layername} "{fileshp}" "{fileout}" """
     env = {
