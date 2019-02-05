@@ -99,6 +99,7 @@ def GDAL2Numpy(pathname, band=1):
     """
     GDAL2Numpy
     """
+
     dataset = gdal.Open(pathname, gdalconst.GA_ReadOnly)
     if dataset:
         band = dataset.GetRasterBand(band)
@@ -109,7 +110,6 @@ def GDAL2Numpy(pathname, band=1):
         nodata = band.GetNoDataValue()
         bandtype = gdal.GetDataTypeName(band.DataType)
         wdata = band.ReadAsArray(0, 0, cols, rows)
-        print(wdata)
         # translate nodata as Nan
         if not wdata is None:
             if bandtype in ('Float32', 'Float64', 'CFloat32', 'CFloat64'):
