@@ -83,7 +83,8 @@ def GetExtent(filename):
         gt = dataset.GetGeoTransform()
         xmin,px,_,ymax,_,py = gt
         xmax = xmin + n*px
-        ymin = ymin + m*py
+        ymin = ymax + m*py
+        ymin,ymax = min(ymin,ymax),max(ymin,ymax)
         return (xmin, ymin, xmax, ymax )
     return (0,0,0,0)
 
