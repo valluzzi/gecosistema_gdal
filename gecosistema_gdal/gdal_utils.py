@@ -72,6 +72,21 @@ def GetValueAt(X,Y,filename):
     #raise ValueError("Unexpected (Lon,Lat) values.")
     return None
 
+def GetExtent(filename):
+    """
+    GetExtent
+    """
+    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
+    if dataset:
+        "{xmin} {ymin} {xmax} {ymax}"
+        m,n  = dataset.RasterYSize,dataset.RasterXSize
+        gt = dataset.GetGeoTransform()
+        xmin,px,_,ymin,_,py = gt
+        xmax = xmin + n*px
+        ymax = ymin + m*py
+        return (xmin, ymin, xmax, ymax )
+    return (0,0,0,0)
+
 def GetNoData(filename):
     """
     GetNoData
@@ -329,5 +344,30 @@ def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):
     fileout = fileout if fileout else forceext(fileshp,"sqlite")
     command = """ogr2ogr -skipfailures -overwrite -f "{format}" "{fileout}" "{fileshp}" """
     env = {"format":format,"fileshp":fileshp,"fileout":fileout}
+
+    return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
+
+
+def gdalrasterize(fileshp, fileout="", snap_to="", verbose=False):
+    """
+    gdalrasterize
+    """
+    fileout = fileout if fileout else forceext(fileshp,"tif")
+
+
+
+    command = """gdalrasterize -b 1 -burn 1 -te {xmin} {ymin} {xmax} {ymax} -tr {px} {py} -tap -ot Byte -a_nodata 255 -of GTiff -l {layername} "{fileshp}" "{fileout}" """
+    env = {
+        "format":format,
+        "fileshp":fileshp,
+        "layername":juststem(fileshp),
+        "fileout":fileout,
+        "xmin":xmin,
+        "ymin":ymin,
+        "xmax":xmax,
+        "ymax":ymax,
+        "px":px,
+        "py":py
+    }
 
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
