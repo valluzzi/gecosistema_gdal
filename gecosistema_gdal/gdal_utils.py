@@ -238,7 +238,7 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
         print("gdal_Buffer error: File <%s> does not exits! " %src_dataset)
         return False
     proj,gt = ds.GetProjection(), ds.GetGeoTransform()
-    m,col = ds.RasterYSize,ds.RasterXSize
+    m,n = ds.RasterYSize,ds.RasterXSize
     band= ds.GetRasterBand(1)
     no_data = band.GetNoDataValue()
     data = band.ReadAsArray(0, 0, n, m).astype(int)
@@ -251,12 +251,12 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
     temp_array = np.zeros_like(data)
     i, j, h, k = 0, 0, 0, 0
 
-    while (h < col):
+    while (h < n):
         k = 0
         while (k < m):
             if (data[k][h] >= 1):
                 i = h - cell_dist
-                while ((i < cell_dist + h) and i < col):
+                while ((i < cell_dist + h) and i < n):
                     j = k - cell_dist
                     while (j < (cell_dist + k) and j < m):
                         if (((i - h) ** 2 + (j - k) ** 2) <= cell_dist ** 2):
