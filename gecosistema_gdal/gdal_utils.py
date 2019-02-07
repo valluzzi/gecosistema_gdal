@@ -225,12 +225,13 @@ def Numpy2Gdal(data, geotransform, projection, filename, nodata=-9999):
     else:
         return ""
 
-def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True)
+def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
     """
     Create a Raster fixed distance buffer
     """
     #hard inspired from
     #https://gis.stackexchange.com/questions/250555/buffering-around-raster-using-gdal-and-numpy
+    dst_dataset = dst_dataset if dst_dataset else forceext(src_dataset,"buffer.%sm.tif"%distance)
 
     ds = gdal.Open(src_dataset)
     if ds is None:
@@ -266,7 +267,7 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True)
             k += 1
         h += 1
     ds, temp_array, data = None, None, None
-    
+
     Numpy2Gdal(out_array, gt, prj, dst_dataset, no_data)
     out_array=None
     return True
