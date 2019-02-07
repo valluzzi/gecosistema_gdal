@@ -225,6 +225,60 @@ def Numpy2Gdal(data, geotransform, projection, filename, nodata=-9999):
     else:
         return ""
 
+def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True)
+    """
+    Create a Raster fixed distance buffer
+    """
+    #hard inspired from
+    #https://gis.stackexchange.com/questions/250555/buffering-around-raster-using-gdal-and-numpy
+
+    ds = gdal.Open(src_dataset)
+    if ds is None:
+        print("gdal_Buffer error: File <%s> does not exits! " %src_dataset)
+        return False
+    proj,gt = ds.GetProjection(), ds.GetGeoTransform()
+    m,n = ds.RasterYSize,ds.RasterXSize
+    band,no_data = ds.GetRasterBand(1),band.GetNoDataValue()
+    data = band.ReadAsArray(0, 0, n, m).astype(int)
+    px = float(abs(gt[1]))
+    py = float(abs(gt[5]))
+    cell_size = (px + py) / 2.0
+    cell_dist = distance / cell_size
+    data[data == (no_data or 0 or -9999)] = 0
+    out_array  = np.zeros_like(data)
+    temp_array = np.zeros_like(data)
+    i, j, h, k = 0, 0, 0, 0
+
+    while (h < col):
+        k = 0
+        while (k < row):
+            if (data[k][h] >= 1):
+                i = h - cell_dist
+                while ((i < cell_dist + h) and i < col):
+                    j = k - cell_dist
+                    while (j < (cell_dist + k) and j < row):
+                        if (((i - h) ** 2 + (j - k) ** 2) <= cell_dist ** 2):
+                            if (temp_array[j][i] == 0 or temp_array[j][i] > ((i - h) ** 2 + (j - k) ** 2)):
+                                out_array[j][i] = data[k][h]
+                                temp_array[j][i] = (i - h) ** 2 + (j - k) ** 2
+                        j += 1
+                    i += 1
+            k += 1
+        h += 1
+    ds, temp_array, data = None, None, None
+    
+    Numpy2Gdal(out_array, gt, prj, dst_dataset, no_data)
+    out_array=None
+    return True
+
+
+
+
+
+
+
+
+
 
 def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres=-1, yres=-1, compress=True,
                    verbose=False):
