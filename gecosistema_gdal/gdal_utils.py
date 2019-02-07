@@ -242,9 +242,9 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
     band= ds.GetRasterBand(1)
     no_data = band.GetNoDataValue()
     data = band.ReadAsArray(0, 0, n, m).astype(int)
-    px = float(abs(gt[1]))
-    py = float(abs(gt[5]))
-    cell_size = (px + py) / 2.0
+    px = int(abs(gt[1]))
+    py = int(abs(gt[5]))
+    cell_size = (px + py) / 2
     cell_dist = distance / cell_size
     data[data == (no_data or 0 or -9999)] = 0
     out_array  = np.zeros_like(data)
