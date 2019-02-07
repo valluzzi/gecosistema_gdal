@@ -237,7 +237,7 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
     if ds is None:
         print("gdal_Buffer error: File <%s> does not exits! " %src_dataset)
         return False
-    proj,gt = ds.GetProjection(), ds.GetGeoTransform()
+    prj,gt = ds.GetProjection(), ds.GetGeoTransform()
     m,n = ds.RasterYSize,ds.RasterXSize
     band= ds.GetRasterBand(1)
     no_data = band.GetNoDataValue()
