@@ -239,7 +239,8 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
         return False
     proj,gt = ds.GetProjection(), ds.GetGeoTransform()
     m,n = ds.RasterYSize,ds.RasterXSize
-    band,no_data = ds.GetRasterBand(1),band.GetNoDataValue()
+    band= ds.GetRasterBand(1)
+    no_data = band.GetNoDataValue()
     data = band.ReadAsArray(0, 0, n, m).astype(int)
     px = float(abs(gt[1]))
     py = float(abs(gt[5]))
