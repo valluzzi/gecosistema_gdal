@@ -353,7 +353,7 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
 
     command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -ot {ot} -of GTiff -co "COMPRESS=LZW" -co "PREDICTOR={predictor}" -co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -o "{filemosaic}" --optfile "{filelist}" """
 
-    return Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
+    return Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose)
 
 
 def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):

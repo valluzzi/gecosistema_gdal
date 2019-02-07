@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="04a9cc17-7ce3-4afb-aff0-47a253bd4852" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -50,8 +51,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="466">
-              <caret line="353" column="161" selection-start-line="353" selection-start-column="105" selection-end-line="353" selection-end-column="161" />
+            <state relative-caret-position="502">
+              <caret line="355" column="120" lean-forward="true" selection-start-line="355" selection-start-column="120" selection-end-line="355" selection-end-column="120" />
               <folding>
                 <element signature="e#931#952#0" expanded="true" />
               </folding>
@@ -148,7 +149,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1382" />
@@ -218,8 +219,8 @@
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5797101" visible="true" weight="0.27155825" />
-      <window_info id="Structure" order="1" sideWeight="0.42028984" side_tool="true" visible="true" weight="0.27155825" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5797101" visible="true" weight="0.056732222" />
+      <window_info id="Structure" order="1" sideWeight="0.42028984" side_tool="true" visible="true" weight="0.056732222" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -290,8 +291,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="466">
-          <caret line="353" column="161" selection-start-line="353" selection-start-column="105" selection-end-line="353" selection-end-column="161" />
+        <state relative-caret-position="502">
+          <caret line="355" column="120" lean-forward="true" selection-start-line="355" selection-start-column="120" selection-end-line="355" selection-end-column="120" />
           <folding>
             <element signature="e#931#952#0" expanded="true" />
           </folding>
