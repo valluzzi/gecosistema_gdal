@@ -327,6 +327,14 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
     """
     filelist   = tempfname("merge",ext="lst")
     filemosaic = forceext(filelist,"tif")
+
+    if ot in ("Float32", "Float64", "CFloat32", "CFloat64"):
+        predictor = 3
+    elif ot in ("Int16", "UInt16", "Int32", "UInt32", "CInt16", "CInt32"):
+        predictor = 2
+    else:
+        predictor = 1
+
     env = {
         "GDAL_HOME" :GDAL_HOME,
         "filelist": filelist,
@@ -334,21 +342,19 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
         "fileout": fileout,
         "workdir":workdir,
         "ignore_value":ignore_value,
-        "no_data":no_data
+        "no_data":no_data,
+        "ot":ot,
+        "predictor":predictor
     }
 
     strtofile("", filelist)
     for filename in ls( workdir, filter =r'.*\.tif'):
         strtofile(filename+"\n",filelist,True)
 
-    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -of GTiff -o "{filemosaic}" --optfile "{filelist}" """
+    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -ot {ot} -of GTiff -co "COMPRESS=LZW" -co "PREDICTOR={predictor}" -co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -o "{filemosaic}" --optfile "{filelist}" """
 
-    if Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
-        if gdal_translate(filemosaic,fileout,ot=ot,compress=True,verbose=verbose):
-            remove(filemosaic)
-            return fileout
+    return Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose):
 
-    return False
 
 def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):
     """
