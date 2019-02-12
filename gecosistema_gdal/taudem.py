@@ -84,7 +84,7 @@ def PitRemove(demfile, felfile="", n=-1, skipIfExists=False, verbose=False):
 
     return felfile
 
-def D8FlowDir(felfile, pfile="", sd8file="", n=-1, skipIfExists=False, verbose=False):
+def D8FlowDir(felfile, pfile="", sd8file="", n=-1, skipIfExists=False, version="dtarb", verbose=False):
     """
     D8FlowDir
     """
@@ -95,7 +95,16 @@ def D8FlowDir(felfile, pfile="", sd8file="", n=-1, skipIfExists=False, verbose=F
     mkdirs(justpath(pfile))
     mkdirs(justpath(sd8file))
 
-    env = {"exe": "d8flowdir", "felfile": felfile, "pfile": pfile, "sd8file": sd8file, "n": n}
+    #dtarb or kornelius version
+    fileexe = "d8flowdir" if version="dtarb" else "d8flowdirk"
+
+    env = {
+        "exe": fileexe,
+        "felfile": felfile,
+        "pfile": pfile,
+        "sd8file": sd8file,
+        "n": n
+    }
     return mpiexec(command, env, n, precond=[felfile], postcond=[pfile, sd8file], skipIfExists=skipIfExists,
                    verbose=verbose)
 

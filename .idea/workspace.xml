@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="04a9cc17-7ce3-4afb-aff0-47a253bd4852" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/taudem.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/taudem.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,8 +20,8 @@
           <entry key="project.open.time.1" value="1" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.5" value="2" />
-          <entry key="project.open.time.6" value="2" />
-          <entry key="project.opened" value="12" />
+          <entry key="project.open.time.6" value="3" />
+          <entry key="project.opened" value="13" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -35,22 +36,22 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="2952" />
+          <entry key="py" value="3116" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="2952" />
+          <entry key="Python" value="3116" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
+            <state relative-caret-position="541">
               <caret line="271" column="38" selection-start-line="271" selection-start-column="38" selection-end-line="271" selection-end-column="38" />
               <folding>
                 <element signature="e#931#952#0" expanded="true" />
@@ -71,17 +72,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3235">
+            <state relative-caret-position="144">
               <caret line="8" column="34" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="34" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gecosistema_gdal/taudem.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1092">
-              <caret line="104" column="7" selection-start-line="104" selection-start-column="7" selection-end-line="104" selection-end-column="7" />
+            <state relative-caret-position="306">
+              <caret line="97" column="31" selection-start-line="97" selection-start-column="31" selection-end-line="97" selection-end-column="31" />
               <folding>
                 <element signature="e#927#940#0" expanded="true" />
               </folding>
@@ -142,9 +143,9 @@
       <list>
         <option value="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" />
         <option value="$PROJECT_DIR$/gecosistema_gdal/__init__.py" />
-        <option value="$PROJECT_DIR$/gecosistema_gdal/taudem.py" />
         <option value="$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py" />
         <option value="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" />
+        <option value="$PROJECT_DIR$/gecosistema_gdal/taudem.py" />
       </list>
     </option>
   </component>
@@ -162,6 +163,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -178,7 +180,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -218,8 +219,8 @@
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.5797101" visible="true" weight="0.25869894" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.42028984" side_tool="true" visible="true" weight="0.25869894" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.57809985" visible="true" weight="0.2624811" />
+      <window_info id="Structure" order="1" sideWeight="0.42190015" side_tool="true" visible="true" weight="0.2624811" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -243,10 +244,27 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="541">
+          <caret line="271" column="38" selection-start-line="271" selection-start-column="38" selection-end-line="271" selection-end-column="38" />
+          <folding>
+            <element signature="e#931#952#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="486">
           <caret line="27" selection-start-line="27" selection-end-line="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="8" column="34" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="34" />
         </state>
       </provider>
     </entry>
@@ -271,29 +289,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3235">
-          <caret line="8" column="34" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gecosistema_gdal/taudem.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1092">
-          <caret line="104" column="7" selection-start-line="104" selection-start-column="7" selection-end-line="104" selection-end-column="7" />
+        <state relative-caret-position="306">
+          <caret line="97" column="31" selection-start-line="97" selection-start-column="31" selection-end-line="97" selection-end-column="31" />
           <folding>
             <element signature="e#927#940#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="271" column="38" selection-start-line="271" selection-start-column="38" selection-end-line="271" selection-end-column="38" />
-          <folding>
-            <element signature="e#931#952#0" expanded="true" />
           </folding>
         </state>
       </provider>
