@@ -24,6 +24,7 @@
 # -------------------------------------------------------------------------------
 import os,sys
 from .gdal_utils import *
+from .gdal_numpy import *
 from gecosistema_core import *
 
 def mpiexec(command, env={}, n=0, precond=[], postcond=[], remove=[], skipIfExists=False, verbose=False):
