@@ -96,7 +96,7 @@ def D8FlowDir(felfile, pfile="", sd8file="", n=-1, skipIfExists=False, version="
     mkdirs(justpath(sd8file))
 
     #dtarb or kornelius version
-    fileexe = "d8flowdir" if version="dtarb" else "d8flowdirk"
+    fileexe = "d8flowdir" if version=="dtarb" else "d8flowdirk"
 
     env = {
         "exe": fileexe,
