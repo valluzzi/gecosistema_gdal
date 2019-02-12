@@ -23,6 +23,7 @@
 # Created:     17/01/2019
 # -------------------------------------------------------------------------------
 import os,sys
+from .gdal_utils import *
 from gecosistema_core import *
 
 def mpiexec(command, env={}, n=0, precond=[], postcond=[], remove=[], skipIfExists=False, verbose=False):
