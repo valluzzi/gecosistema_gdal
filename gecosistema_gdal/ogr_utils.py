@@ -23,6 +23,7 @@
 # Created:     28/12/2018
 # -------------------------------------------------------------------------------
 import os,sys,ogr
+import gdal,gdalconst
 
 def GetFeatures(fileshp):
     """
@@ -106,3 +107,38 @@ def SaveFeature(feature, fileshp=""):
     feature = None
     ds = None
     return fileshp
+
+def RasterizeLike(file_shp, file_dem, file_tif=""):
+    """
+    Rasterize
+    """
+
+    dataset = gdal.Open(file_dem, gdalconst.GA_ReadOnly)
+    vector  = ogr.OpenShared(file_shp)
+    if dataset and vector:
+        band = dataset.GetRasterBand(band)
+        m,n = dataset.RasterYSize,dataset.RasterXSize
+        gt,prj = dataset.GetGeoTransform(),dataset.GetProjection()
+        nodata = band.GetNoDataValue()
+        bandtype = gdal.GetDataTypeName(band.DataType)
+        _, px, _, _, _, py = gt
+
+
+        # Open the data source and read in the extent
+
+        layer = source_ds.GetLayer()
+
+        # Create the destination data source
+
+        target_ds = gdal.GetDriverByName('GTiff').Create(file_tif, n, m, 1, bandtype)
+        if (gt != None):
+            target_ds.SetGeoTransform(gt)
+        if (prj != None):
+            target_ds.SetProjection(prj)
+        band = target_ds.GetRasterBand(1)
+        band.SetNoDataValue(nodata)
+
+        # Rasterize
+        gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[0])
+
+        dataset, verctor, target_ds = None,None,None
