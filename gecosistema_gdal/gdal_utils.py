@@ -337,7 +337,7 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     command += """-dstnodata {nodata} """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
     command += """--config GDAL_CACHEMAX 90% -wm 500 """
-    command += """-cutline "{cutline}" -crop_to_cutline """ if cutline else ""
+    command += """-cutline "{cutline}" -crop_to_cutline -tap """ if cutline else ""
     command += """-tr {xres} -{yres} """ if xres > 0 and yres > 0 else ""
     command += """-r {interpolation} """
     command += """-t_srs {t_srs} """ if t_srs else ""
