@@ -22,6 +22,7 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
+import osr
 import gdal,gdalconst
 import numpy as np
 import struct
@@ -231,6 +232,17 @@ def Numpy2Gdal(data, geotransform, projection, filename, save_nodata_as=-9999):
         return Numpy2AAIGrid(data, geotransform, filename, save_nodata_as)
     else:
         return ""
+
+def Numpy2Raster(arr, x0, y0, epsg, px, py, filename="", save_nodata_as=-9999):
+    """
+    Numpy2Raster
+    """
+    gt = (x0, px, 0.0, y0, 0.0, -(abs(py)) )
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(int("%s"%(epsg)))
+    prj = srs.ExportToWkt()
+    return Numpy2Gdal(arr, gt, prj, filename, save_nodata_as)
+
 
 def GDALError( filenameA, filenameB, file_err):
     """
