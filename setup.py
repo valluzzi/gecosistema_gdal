@@ -1,27 +1,35 @@
+import os,re
 import setuptools
 
-with open("version.txt", "r") as f:
-    version = f.read()
-    if version:
-        versionno = version.split("=")[-1].strip("' ")
-        arr = [int(item) for item in versionno.split(".")]
-        arr[2] += 1
-        version = "%d.%d.%d" % tuple(arr)
-        with open("version.txt", "w") as w:
-            w.write(version)
+PACKAGE_NAME    = "gecosistema_gdal"
+AUTHOR          = "Valerio Luzzi"
+EMAIL           = "valluzzi@gmail.com"
+GITHUB          = "https://github.com/valluzzi/%s.git"%(PACKAGE_NAME)
+DESCRIPTION     = "A core functions package"
+
+def get_version():
+    VERSIONFILE = os.path.join(PACKAGE_NAME, '__init__.py')
+    initfile_lines = open(VERSIONFILE, 'rt').readlines()
+    VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]\s*"
+    for line in initfile_lines:
+        mo = re.search(VSRE, line, re.M)
+        if mo:
+            return mo.group(1)
+    raise RuntimeError('Unable to find version string in %s.' % (VERSIONFILE,))
 
 setuptools.setup(
-    name="gecosistema_gdal",
-    version=version,
-    author="Valerio Luzzi",
-    author_email="valluzzi@gmail.com",
-    description="A small example package",
-    long_description="A small example package",
-    url="https://github.com/valluzzi/gecosistema_gdal.git",
+    name=PACKAGE_NAME,
+    version=get_version(),
+    author=AUTHOR,
+    author_email=EMAIL,
+    description=DESCRIPTION,
+    long_description=DESCRIPTION,
+    url=GITHUB,
     packages=setuptools.find_packages(),
     classifiers=(
-        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ),
+    install_requires=[]
 )
