@@ -9,12 +9,9 @@ DESCRIPTION     = "A core functions package"
 
 def get_version():
     VERSIONFILE = os.path.join(PACKAGE_NAME, '__init__.py')
-    print("VERSIONFILE=",VERSIONFILE)
     initfile_lines = open(VERSIONFILE, 'rt').readlines()
     VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]\s*"
     for line in initfile_lines:
-        print(line)
-        print("-----------------")
         mo = re.search(VSRE, line, re.M)
         if mo:
             return mo.group(1)
