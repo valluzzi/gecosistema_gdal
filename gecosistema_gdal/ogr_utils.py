@@ -73,7 +73,7 @@ def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0):
 
 def GetAttributeTableByFid(fileshp, layername=0, fid=0):
     """
-    GetRecordByFid
+    GetAttributeTableByFid
     """
     res = {}
     dataset = ogr.OpenShared(fileshp)
