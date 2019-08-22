@@ -71,6 +71,24 @@ def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0):
     dataset = None
     return None
 
+def GetAttributeTableByFid(fileshp, layername=0, fid=0):
+    """
+    GetRecordByFid
+    """
+    res = {}
+    dataset = ogr.OpenShared(fileshp)
+    if dataset:
+        layer = dataset.GetLayer(layername)
+        feature = layer.GetFeature(fid)
+        geom = feature.GetGeometryRef()
+        res["geometry"] = geom.ExportToWkt()
+        layerDefinition = layer.GetLayerDefn()
+        for j in range(layerDefinition.GetFieldCount()):
+            fieldname = layerDefinition.GetFieldDefn(j).GetName()
+            res[fieldname] = feature.GetField(j)
+    dataset = None
+    return res
+
 
 def removeShape(filename):
     """

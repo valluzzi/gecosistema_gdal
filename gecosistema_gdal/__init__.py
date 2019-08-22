@@ -22,7 +22,8 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
-__version__ = '0.0.81'
+__version__ = '0.0.82'
+
 from .ogr_utils import *
 from .gdal_utils import *
 from .gdal_numpy import *

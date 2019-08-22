@@ -29,7 +29,7 @@ import gdal,gdalconst
 from scipy.sparse import issparse
 
 
-def Sparse2Raster(arr, x0, y0, epsg, px, py, filename="", =-9999):
+def Sparse2Raster(arr, x0, y0, epsg, px, py, filename="", save_nodata_as=-9999):
     """
     Sparse2Rastersave_nodata_as
     """
