@@ -398,7 +398,7 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     }
 
     if isfile(cutline) and justext(cutline) == "tif":
-        xmin.ymin.xmax,ymax = GetExtent(cutline)
+        xmin,ymin,xmax,ymax = GetExtent(cutline)
         env["xmin"]=xmin
         env["ymin"]=ymin
         env["xmax"]=xmax
