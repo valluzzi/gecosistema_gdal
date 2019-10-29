@@ -409,9 +409,9 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     elif isstring(cutline) and len(listify(cutline))==4:
         xmin, ymin, xmax, ymax = listify(cutline)
         env["xmin"] = xmin
-        env["ymin"] = ymin
+        env["ymin"] = max(ymin,ymax)
         env["xmax"] = xmax
-        env["ymax"] = ymax
+        env["ymax"] = min(ymin,ymax)
 
     #Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=False, verbose=verbose):
     dst_dataset = Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=True,
