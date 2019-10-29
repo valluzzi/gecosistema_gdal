@@ -368,7 +368,10 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     command += """-dstnodata {nodata} """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
     command += """--config GDAL_CACHEMAX 90% -wm 500 """
-    command += """-cutline "{cutline}" -crop_to_cutline -tap """ if cutline else ""
+    if isfile(cutline) and lower(justext(cutline)) == "shp":
+        command += """-cutline "{cutline}" -crop_to_cutline -tap """
+    if isfile(cutline) and lower(justext(cutline)) == "tif":
+        command += """-te {xmin} {ymin} {xmax} {ymax} -tap """
     command += """-tr {xres} -{yres} """ if xres > 0 and yres > 0 else ""
     command += """-r {interpolation} """
     command += """-t_srs {t_srs} """ if t_srs else ""
@@ -393,6 +396,13 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
         "compress": compress,
         "extraparams": extraparams
     }
+
+    if isfile(cutline) and justext(cutline) == "tif":
+        xmin.ymin.xmax,ymax = GetExtent(cutline)
+        env["xmin"]=xmin
+        env["ymin"]=ymin
+        env["xmax"]=xmax
+        env["ymax"]=ymax
 
     #Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=False, verbose=verbose):
     dst_dataset = Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=True,
