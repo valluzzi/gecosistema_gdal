@@ -452,7 +452,7 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
     gdal_merge
     """
     filelist   = tempfname("merge",ext="lst")
-    filemosaic = forceext(filelist,"tif")
+    filemosaic = fileout
 
     if ot in ("Float32", "Float64", "CFloat32", "CFloat64"):
         predictor = 3
@@ -477,7 +477,7 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
         for filename in ls( workdir, filter =r'.*\.tif'):
             stream.write( filename+"\n")
 
-    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -ot {ot} -of GTiff -co "COMPRESS=LZW" -co "PREDICTOR={predictor}" -co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -o "{filemosaic}" --optfile "{filelist}" """
+    command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -ot {ot} -of GTiff -co "COMPRESS=LZW"  -co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -o "{filemosaic}" --optfile "{filelist}" """
 
     return Exec(command, env, precond=[], postcond=[filemosaic], remove=[filelist], skipIfExists=False, verbose=verbose)
 
