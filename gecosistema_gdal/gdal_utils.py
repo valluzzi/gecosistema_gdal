@@ -85,6 +85,17 @@ def GetPixelSize(filename):
         return (px,py)
     return (0,0)
 
+def GetRasterShape(filename):
+    """
+    GetRasterShape
+    """
+    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
+    if dataset:
+        band = dataset.GetRasterBand(1)
+        m,n = dataset.RasterYSize,dataset.RasterXSize
+        return (m,n)
+    return (0,0)
+
 def GetExtent(filename):
     """
     GetExtent
@@ -101,6 +112,15 @@ def GetExtent(filename):
         dataset=None
         return (xmin, ymin, xmax, ymax )
     return (0,0,0,0)
+
+def GetSpatialReference(filename):
+    """
+    GetSpatialReference
+    """
+    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
+    if dataset:
+       return dataset.GetProjection()
+    return None
 
 def GetNoData(filename):
     """
@@ -453,9 +473,9 @@ def gdal_merge(workdir, fileout, ignore_value=0, no_data=0, ot="Float32", GDAL_H
         "predictor":predictor
     }
 
-    strtofile("", filelist)
-    for filename in ls( workdir, filter =r'.*\.tif'):
-        strtofile(filename+"\n",filelist,True)
+    with open(filelist,"w+",encoding='utf-8') as stream:
+        for filename in ls( workdir, filter =r'.*\.tif'):
+            stream.write( filename+"\n")
 
     command="""python "{GDAL_HOME}\\gdal_merge.py" -n {ignore_value} -a_nodata {no_data} -ot {ot} -of GTiff -co "COMPRESS=LZW" -co "PREDICTOR={predictor}" -co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -o "{filemosaic}" --optfile "{filelist}" """
 
