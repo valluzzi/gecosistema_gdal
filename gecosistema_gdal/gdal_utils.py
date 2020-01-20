@@ -378,8 +378,7 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
         return dst_dataset
     return False
 
-def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, xres=-1, yres=-1, interpolation="near", t_srs="",
-             compress="", extraparams="", verbose=False):
+def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, xres=-1, yres=-1, interpolation="near", t_srs="",extraparams="", verbose=False):
     """
     gdalwarp -q -multi -cutline "{fileshp}" -crop_to_cutline -tr {pixelsize} {pixelsize} -of GTiff "{src_dataset}" "{dst_dataset}"
     """
@@ -387,9 +386,10 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     command  = """gdalwarp -multi -overwrite -q -of {of} """
     command += """-dstnodata {nodata} """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
+    command += """-co "COMPRESSION=LZW" """
     command += """--config GDAL_CACHEMAX 90% -wm 500 """
     if isfile(cutline) and lower(justext(cutline)) == "shp":
-        command += """-cutline "{cutline}" -crop_to_cutline """
+        command += """-cutline "{cutline}" """
     elif isfile(cutline) and lower(justext(cutline)) == "tif":
         command += """-te {xmin} {ymin} {xmax} {ymax} """
     elif isstring(cutline) and len(listify(cutline))==4:
@@ -416,7 +416,6 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
         "yres": yres,
         "interpolation": interpolation,
         "t_srs": t_srs,
-        "compress": compress,
         "extraparams": extraparams
     }
 
