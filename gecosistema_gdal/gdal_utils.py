@@ -401,10 +401,10 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     command += """"{src_dataset}" "{dst_dataset}" """
     command += """{extraparams}"""
 
-    translate_inplace = False
-    if not dst_dataset:# or samepath(src_dataset, dst_dataset):
-        translate_inplace = True
-        dst_dataset = justpath(src_dataset) + "/" + tempname("tmp_")
+    #translate_inplace = False
+    #if not dst_dataset:# or samepath(src_dataset, dst_dataset):
+    #    translate_inplace = True
+    #    dst_dataset = justpath(src_dataset) + "/" + tempname("tmp_")
 
     env = {
         "cutline": cutline,
@@ -436,13 +436,13 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     dst_dataset = Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=True,
                           verbose=verbose)
 
-    if translate_inplace:
-        remove(src_dataset)
-        rename(dst_dataset, src_dataset)
-        dst_dataset = src_dataset
+    #if translate_inplace:
+    #    remove(src_dataset)
+    #    rename(dst_dataset, src_dataset)
+    #    dst_dataset = src_dataset
 
-    if compress:
-        gdal_translate(dst_dataset, dst_dataset, of, "Float32", xres, yres, compress=True, verbose=verbose)
+    #if compress:
+    #    gdal_translate(dst_dataset, dst_dataset, of, "Float32", xres, yres, compress=True, verbose=verbose)
 
     return dst_dataset
 
