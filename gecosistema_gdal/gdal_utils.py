@@ -397,7 +397,7 @@ def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, 
     command  = """gdalwarp -multi -overwrite -q -of {of} """
     command += """-dstnodata {nodata} """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
-    command += """-co "COMPRESSION=LZW" """
+    command += """-co "COMPRESS=LZW" """
     command += """--config GDAL_CACHEMAX 90% -wm 500 """
     if isfile(cutline) and lower(justext(cutline)) == "shp":
         command += """-cutline "{cutline}" """
