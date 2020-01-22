@@ -263,6 +263,17 @@ def Numpy2Raster(arr, x0, y0, epsg, px, py, filename="", save_nodata_as=-9999):
     prj = srs.ExportToWkt()
     return Numpy2Gdal(arr, gt, prj, filename, save_nodata_as)
 
+def GDAL_LZW( filename,  fileout="", save_nodata_as=-9999 ):
+    """
+    GDAL LZW compression
+    """
+    filelzw = fileout if fileout else forceext(filename,"lzw.tif")
+    data, gt, prj = GDAL2Numpy(filename, load_nodata_as=save_nodata_as )
+    Numpy2GTiff(data, gt, prj, filelzw,  save_nodata_as=save_nodata_as)
+    if fileout=="" and isfile(filelzw):
+        rename(filelzw, filename, overwrite=True)
+        return filename
+    return filelzw
 
 def GDALError( filenameA, filenameB, file_err):
     """
