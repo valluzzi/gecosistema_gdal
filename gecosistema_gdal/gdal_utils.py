@@ -423,12 +423,14 @@ def gdal_rasterize(fileshp, filetpl, fileout=None):
     target_ds = None
     return fileout if isfile(fileout) else False
 
-def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", verbose=False):
+def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, xres=-1, yres=-1, interpolation="nearest", extraparams="", verbose=False):
     """
     gdal_translate -q -of GTiff -ot Float32 -tr 25 25 "{src_dataset}" "{dst_dataset}"
     """
     (xmin, ymin, xmax, ymax ) = GetExtent(cutline)
     command = """gdal_translate -q -of GTiff -ot Float32 """
+    command += """-tr {xres} -{yres} """ if xres > 0 and yres > 0 else ""
+    command += """-r {interpolation} """
     command += """-projwin {xmin} {ymax} {xmax} {ymin} """
     command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
     command += """-co "COMPRESS=LZW" """
@@ -441,6 +443,9 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
 
         "src_dataset": src_dataset,
         "dst_dataset": filecrop,
+        "xres": xres,
+        "yres": yres,
+        "interpolation": interpolation,
         "xmin":xmin,
         "xmax":xmax,
         "ymin":ymin,
