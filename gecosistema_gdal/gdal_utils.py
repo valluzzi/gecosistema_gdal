@@ -123,7 +123,8 @@ def GetExtent(filename):
             layer = dataset.GetLayer()
             extent = layer.GetExtent()
             dataset = None
-            return extent
+            xmin, xmax, ymin, ymax = extent
+            return (xmin, ymin, xmax, ymax )
 
     return (0,0,0,0)
 
@@ -349,8 +350,6 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
     out_array=None
     return True
 
-
-
 def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres=-1, yres=-1, extraparams="", verbose=False):
     """
     gdal_translate -q -of GTiff -ot Float32 -tr 25 25 "{src_dataset}" "{dst_dataset}"
@@ -388,6 +387,37 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
 
         return dst_dataset
     return False
+
+
+def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", verbose=False):
+    """
+    gdal_translate -q -of GTiff -ot Float32 -tr 25 25 "{src_dataset}" "{dst_dataset}"
+    """
+    (xmin, ymin, xmax, ymax ) = GetExtent(cutline)
+    command = """gdal_translate -q -of GTiff -ot Float32 """
+    command += """-projwin {xmin} {ymax} {xmax} {ymin} """
+    command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
+    command += """-co "COMPRESS=LZW" """
+    command += """"{src_dataset}" "{dst_dataset}" """
+    command += """{extraparams}"""
+
+    env = {
+
+        "src_dataset": src_dataset,
+        "dst_dataset": dst_dataset,
+        "ot": ot,
+        "of": of,
+        "xmin":xmin,
+        "xmax":xmax,
+        "ymin":ymin,
+        "ymax":ymax,
+        "extraparams":extraparams
+    }
+
+    if Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=False, verbose=verbose):
+        gdal_rasterize( cutline, dst_dataset )
+
+    return src_dataset
 
 def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, xres=-1, yres=-1, interpolation="near", t_srs="",extraparams="", verbose=False):
     """
@@ -554,3 +584,37 @@ def gdal_contour(filesrc, filedest=None, step=0.0, verbose=False):
         return Exec(command, env, precond=[filesrc], postcond=[filedest], skipIfExists=False, verbose=verbose)
 
     return False
+
+def gdal_rasterize(fileshp, filetpl, fileout=None):
+    """
+    gdal_rasterize
+    """
+    fileout = fileout if fileout else fileshp.replace(".shp", ".tif")
+    creation_options = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
+    options = []
+
+    ds = gdal.Open(filetpl, 0)
+    gt = ds.GetGeoTransform()
+    m, n = ds.RasterYSize, ds.RasterXSize
+
+    xmin, px, _, ymax, _, py = gt
+    xmax = xmin + px * n
+    ymin = ymax + py * m
+
+    # read source vector
+    vector = ogr.Open(fileshp, 0)
+    layer = vector.GetLayer()
+    target_ds = gdal.GetDriverByName('GTiff').Create(fileout, n, m, 1, gdal.GDT_Byte, creation_options)
+    target_ds.SetGeoTransform((xmin, px, 0, ymax, 0, py))
+
+    target_ds.SetProjection(layer.GetSpatialRef().ExportToWkt())
+    band = target_ds.GetRasterBand(1)
+    band.SetNoDataValue(0)
+
+    gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
+
+    band.FlushCache()
+
+    ds = None
+    band = None
+    target_ds = None
