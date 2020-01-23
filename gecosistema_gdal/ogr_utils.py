@@ -52,7 +52,7 @@ def GetFeatureByFid(fileshp, layername=0, fid=0):
     return feature
 
 
-def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0):
+def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0 ):
     """
     GetFeatureByAttr - get the first feature with attrname=attrvalue
     """
@@ -66,6 +66,10 @@ def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0):
             for feature in layer:
                 if feature.GetField(attrname) == attrvalue:
                     dataset = None
+                    #patch geometry that sometime is invalid
+                    #create a buffer of 0 meters
+                    buff0m = feature.GetGeometryRef().Buffer(0)
+                    feature.SetGeometry(buff0m)
                     return feature
 
     dataset = None

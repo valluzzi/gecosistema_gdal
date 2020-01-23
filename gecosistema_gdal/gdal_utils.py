@@ -337,15 +337,7 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
 
 
 
-
-
-
-
-
-
-
-def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres=-1, yres=-1, compress=True,
-                   verbose=False):
+def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres=-1, yres=-1, extraparams="", verbose=False):
     """
     gdal_translate -q -of GTiff -ot Float32 -tr 25 25 "{src_dataset}" "{dst_dataset}"
     """
@@ -353,16 +345,10 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
     command = """gdal_translate -q -of {of} -ot {ot} """
     command += """-tr {xres} {yres} """ if xres > 0 and yres > 0 else ""
     #command += """--config GDAL_CACHEMAX 90% """
-    command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -co "BIGTIFF=YES" """
-    command += """-co "COMPRESS=LZW" -co "PREDICTOR={predictor}" """
+    command += """-co "BIGTIFF=YES" -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" """
+    command += """-co "COMPRESS=LZW" """
     command += """"{src_dataset}" "{dst_dataset}" """
-
-    if ot in ("Float32", "Float64", "CFloat32", "CFloat64"):
-        predictor = 3
-    elif ot in ("Int16", "UInt16", "Int32", "UInt32", "CInt16", "CInt32"):
-        predictor = 2
-    else:
-        predictor = 1
+    command += """{extraparams}"""
 
     if not dst_dataset: # or samepath(src_dataset, dst_dataset):
         translate_inplace = True
@@ -376,7 +362,7 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
         "of": of,
         "xres": xres,
         "yres": yres,
-        "predictor": predictor
+        "extraparams":extraparams
     }
 
     if Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=False, verbose=verbose):
