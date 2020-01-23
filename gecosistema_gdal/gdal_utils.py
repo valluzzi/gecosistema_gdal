@@ -22,7 +22,7 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
-import osr
+import osr,ogr
 import gdal,gdalconst
 import numpy as np
 import struct
@@ -100,17 +100,31 @@ def GetExtent(filename):
     """
     GetExtent
     """
-    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
-    if dataset:
-        "{xmin} {ymin} {xmax} {ymax}"
-        m,n  = dataset.RasterYSize,dataset.RasterXSize
-        gt = dataset.GetGeoTransform()
-        xmin,px,_,ymax,_,py = gt
-        xmax = xmin + n*px
-        ymin = ymax + m*py
-        ymin,ymax = min(ymin,ymax),max(ymin,ymax)
-        dataset=None
-        return (xmin, ymin, xmax, ymax )
+    ext = justext(filename).lower()
+    if ext =="tif":
+        dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
+        if dataset:
+            "{xmin} {ymin} {xmax} {ymax}"
+            m,n  = dataset.RasterYSize,dataset.RasterXSize
+            gt = dataset.GetGeoTransform()
+            xmin,px,_,ymax,_,py = gt
+            xmax = xmin + n*px
+            ymin = ymax + m*py
+            ymin,ymax = min(ymin,ymax),max(ymin,ymax)
+            dataset=None
+            return (xmin, ymin, xmax, ymax )
+
+    elif ext in ("shp","dbf"):
+
+        filename = forceext(filename,"shp")
+        driver = ogr.GetDriverByName("ESRI Shapefile")
+        if dataset:
+            dataset = driver.Open(filename, 0)
+            layer = dataset.GetLayer()
+            extent = layer.GetExtent()
+            dataset = None
+            return extent
+
     return (0,0,0,0)
 
 def GetSpatialReference(filename):
