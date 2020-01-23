@@ -603,7 +603,9 @@ def gdal_rasterize(fileshp, snap_to, fileout="",  verbose=False):
         "py":py
     }
 
-    return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
+    if Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose):
+        return fileout
+    return False
 
 def gdal_contour(filesrc, filedest=None, step=0.0, verbose=False):
     """
