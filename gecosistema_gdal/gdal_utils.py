@@ -419,8 +419,10 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
             data, gt , prj = GDAL2Numpy( src_dataset, load_nodata_as = np.nan)
             data[mask == 0] = np.nan
             Numpy2GTiff(data, gt, prj, forceext(filemask,"out.tif"), save_nodata_as= nodata )
+        else:
+            print("filemask does not exists!")
 
-    return src_dataset
+    return dst_dataset
 
 def gdalwarp(src_dataset, dst_dataset="", cutline="", of="GTiff", nodata=-9999, xres=-1, yres=-1, interpolation="near", t_srs="",extraparams="", verbose=False):
     """

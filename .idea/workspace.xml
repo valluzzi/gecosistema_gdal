@@ -63,8 +63,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="815">
-              <caret line="421" column="12" selection-start-line="421" selection-start-column="12" selection-end-line="421" selection-end-column="12" />
+            <state relative-caret-position="442">
+              <caret line="422" column="44" selection-start-line="422" selection-start-column="44" selection-end-line="422" selection-end-column="44" />
               <folding>
                 <element signature="e#931#941#0" expanded="true" />
               </folding>
@@ -241,17 +241,6 @@
     <MESSAGE value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
     <option name="LAST_COMMIT_MESSAGE" value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py</url>
-          <line>398</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/gecosistema_gdal/taudem.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -311,8 +300,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="815">
-          <caret line="421" column="12" selection-start-line="421" selection-start-column="12" selection-end-line="421" selection-end-column="12" />
+        <state relative-caret-position="442">
+          <caret line="422" column="44" selection-start-line="422" selection-start-column="44" selection-end-line="422" selection-end-column="44" />
           <folding>
             <element signature="e#931#941#0" expanded="true" />
           </folding>
