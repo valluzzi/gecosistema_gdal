@@ -388,6 +388,40 @@ def gdal_translate(src_dataset, dst_dataset=None, of="GTiff", ot="Float32", xres
         return dst_dataset
     return False
 
+def gdal_rasterize(fileshp, filetpl, fileout=None):
+    """
+    gdal_rasterize
+    """
+    fileout = fileout if fileout else fileshp.replace(".shp", ".tif")
+    creation_options = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
+    options = []
+
+    ds = gdal.Open(filetpl, 0)
+    gt = ds.GetGeoTransform()
+    m, n = ds.RasterYSize, ds.RasterXSize
+
+    xmin, px, _, ymax, _, py = gt
+    xmax = xmin + px * n
+    ymin = ymax + py * m
+
+    # read source vector
+    vector = ogr.Open(fileshp, 0)
+    layer = vector.GetLayer()
+    target_ds = gdal.GetDriverByName('GTiff').Create(fileout, n, m, 1, gdal.GDT_Byte, creation_options)
+    target_ds.SetGeoTransform((xmin, px, 0, ymax, 0, py))
+
+    target_ds.SetProjection(layer.GetSpatialRef().ExportToWkt())
+    band = target_ds.GetRasterBand(1)
+    band.SetNoDataValue(0)
+
+    gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
+
+    band.FlushCache()
+
+    ds = None
+    band = None
+    target_ds = None
+    return fileout if isfile(fileout) else False
 
 def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", verbose=False):
     """
@@ -413,7 +447,10 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
     }
 
     if Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=False, verbose=verbose):
+
+        print("gdal_rasterize...")
         filemask = gdal_rasterize( cutline, dst_dataset )
+        print("filemask:",filemask)
         if filemask:
             print( "1) GDAL2Numpy..")
             mask, _  ,  _  = GDAL2Numpy( filemask, dtype = np.uint8 ,load_nodata_as = 0)
@@ -593,37 +630,3 @@ def gdal_contour(filesrc, filedest=None, step=0.0, verbose=False):
 
     return False
 
-def gdal_rasterize(fileshp, filetpl, fileout=None):
-    """
-    gdal_rasterize
-    """
-    fileout = fileout if fileout else fileshp.replace(".shp", ".tif")
-    creation_options = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
-    options = []
-
-    ds = gdal.Open(filetpl, 0)
-    gt = ds.GetGeoTransform()
-    m, n = ds.RasterYSize, ds.RasterXSize
-
-    xmin, px, _, ymax, _, py = gt
-    xmax = xmin + px * n
-    ymin = ymax + py * m
-
-    # read source vector
-    vector = ogr.Open(fileshp, 0)
-    layer = vector.GetLayer()
-    target_ds = gdal.GetDriverByName('GTiff').Create(fileout, n, m, 1, gdal.GDT_Byte, creation_options)
-    target_ds.SetGeoTransform((xmin, px, 0, ymax, 0, py))
-
-    target_ds.SetProjection(layer.GetSpatialRef().ExportToWkt())
-    band = target_ds.GetRasterBand(1)
-    band.SetNoDataValue(0)
-
-    gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
-
-    band.FlushCache()
-
-    ds = None
-    band = None
-    target_ds = None
-    return fileout if isfile(fileout) else False
