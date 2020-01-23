@@ -405,8 +405,6 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
 
         "src_dataset": src_dataset,
         "dst_dataset": dst_dataset,
-        "ot": ot,
-        "of": of,
         "xmin":xmin,
         "xmax":xmax,
         "ymin":ymin,
