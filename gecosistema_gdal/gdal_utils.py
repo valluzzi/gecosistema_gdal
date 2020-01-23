@@ -118,8 +118,8 @@ def GetExtent(filename):
 
         filename = forceext(filename,"shp")
         driver = ogr.GetDriverByName("ESRI Shapefile")
+        dataset = driver.Open(filename, 0)
         if dataset:
-            dataset = driver.Open(filename, 0)
             layer = dataset.GetLayer()
             extent = layer.GetExtent()
             dataset = None
