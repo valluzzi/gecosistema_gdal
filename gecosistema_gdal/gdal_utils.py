@@ -578,7 +578,7 @@ def ogr2ogr(fileshp, fileout="", format="sqlite", verbose=False):
 
     return Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose)
 
-
+"""
 def gdal_rasterize(fileshp, snap_to, fileout="",  verbose=False):
     """
     gdal_rasterize
@@ -606,6 +606,8 @@ def gdal_rasterize(fileshp, snap_to, fileout="",  verbose=False):
     if Exec(command, env, precond=[], postcond=[fileout], skipIfExists=False, verbose=verbose):
         return fileout
     return False
+"""
+
 
 def gdal_contour(filesrc, filedest=None, step=0.0, verbose=False):
     """
