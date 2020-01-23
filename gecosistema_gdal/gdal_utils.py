@@ -450,7 +450,7 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
 
     if Exec(command, env, precond=[src_dataset], postcond=[filecrop], skipIfExists=False, verbose=verbose):
         filemask = tempfname("mask",ext="tif")
-        gdal_rasterize( cutline, dst_dataset, filemask )
+        gdal_rasterize( cutline, filecrop, filemask )
         if filemask:
             mask, _  ,  _  = GDAL2Numpy( filemask, dtype = np.uint8 ,load_nodata_as = 0)
             data, gt , prj = GDAL2Numpy( filecrop, load_nodata_as = np.nan)
