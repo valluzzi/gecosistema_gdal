@@ -450,12 +450,12 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
 
         print("gdal_rasterize...")
         filemask = gdal_rasterize( cutline, dst_dataset )
-        print("filemask:",filemask)
+        print("filemask:", filemask)
         if filemask:
             print( "1) GDAL2Numpy..")
             mask, _  ,  _  = GDAL2Numpy( filemask, dtype = np.uint8 ,load_nodata_as = 0)
             print(" 2) GDAL2Numpy..")
-            data, gt , prj = GDAL2Numpy( src_dataset, load_nodata_as = np.nan)
+            data, gt , prj = GDAL2Numpy( dst_dataset, load_nodata_as = np.nan)
             data[mask == 0] = np.nan
             print("3) Numpy2GTiff..")
             Numpy2GTiff(data, gt, prj, forceext(filemask,"out.tif"), save_nodata_as= nodata )
