@@ -413,7 +413,12 @@ def gdal_crop(src_dataset, dst_dataset, cutline, nodata=-9999, extraparams="", v
     }
 
     if Exec(command, env, precond=[src_dataset], postcond=[dst_dataset], skipIfExists=False, verbose=verbose):
-        gdal_rasterize( cutline, dst_dataset )
+        filemask = gdal_rasterize( cutline, dst_dataset )
+        if isfile(filemask):
+            mask, _  ,  _  = GDAL2Numpy( filemask, dtype = np.uint8 ,load_nodata_as = 0)
+            data, gt , prj = GDAL2Numpy( src_dataset, load_nodata_as = np.nan)
+            data[mask == 0] = np.nan
+            Numpy2GTiff(data, gt, prj, forceext(filemask,"out.tif"), save_nodata_as= nodata )
 
     return src_dataset
 
@@ -616,3 +621,4 @@ def gdal_rasterize(fileshp, filetpl, fileout=None):
     ds = None
     band = None
     target_ds = None
+    return fileout
