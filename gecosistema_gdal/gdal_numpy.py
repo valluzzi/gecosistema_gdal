@@ -54,8 +54,8 @@ def GDAL_like(filename, fileout=""):
         M, N = int(dataset1.RasterYSize), int(dataset1.RasterXSize)
         B = dataset1.RasterCount
         BSx, BSy = band1.GetBlockSize()
-        Nb = N / BSx + (0 if N % BSx == 0 else 1)
-        Mb = M / BSy + (0 if M % BSy == 0 else 1)
+        Nb = int(N / BSx) + (0 if N % BSx == 0 else 1)
+        Mb = int(M / BSy) + (0 if M % BSy == 0 else 1)
         CO = ["BIGTIFF=YES"]
         options = dataset1.GetMetadata("IMAGE_STRUCTURE")
         if BSy > 1:
@@ -93,10 +93,10 @@ def GDALReadBlock(dataset, blocno, BSx=-1, BSy=-1, verbose=False):
         BSx, BSy = (BSx, BSy) if BSx > 0 else band.GetBlockSize()
         M, N = int(dataset.RasterYSize), int(dataset.RasterXSize)
 
-        Nb = N / BSx + (0 if N % BSx == 0 else 1)
+        Nb = int(N / BSx) + (0 if N % BSx == 0 else 1)
 
         x0 = (blocno % Nb) * BSx
-        y0 = (blocno / Nb) * BSy
+        y0 = int(blocno / Nb) * BSy
 
         QSx = BSx if x0 + BSx <= N else N % BSx
         QSy = BSy if y0 + BSy <= M else M % BSy
@@ -129,9 +129,9 @@ def GDALWriteBlock(dataset, blocno, data, BSx=-1, BSy=-1, verbose=False):
         BSx, BSy = (BSx, BSy) if BSx > 0 else band.GetBlockSize()
 
         M, N = int(dataset.RasterYSize), int(dataset.RasterXSize)
-        Nb = N / BSx + (0 if N % BSx == 0 else 1)
+        Nb = int(N / BSx) + (0 if N % BSx == 0 else 1)
 
-        yoff = (blocno / Nb) * BSy
+        yoff = int(blocno / Nb) * BSy
         xoff = (blocno % Nb) * BSx
 
         band.WriteArray(data, xoff, yoff)
