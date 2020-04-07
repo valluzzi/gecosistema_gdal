@@ -31,5 +31,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    setup_requires=['wheel'],
     install_requires=[]
+
 )
