@@ -221,7 +221,6 @@ def gdal_numpy(expression, env={}, ignore_warn=True, verbose=False):
         for key in keys:
             if key.startswith("file_"):
                 env[key] = None
-                del env[key]
 
         t2 = datetime.datetime.now()
         if verbose:
