@@ -22,8 +22,38 @@
 #
 # Created:     28/12/2018
 # -------------------------------------------------------------------------------
-import os,sys,ogr
+import os,sys
+import math,json
+import ogr,osr
 import gdal,gdalconst
+from gecosistema_core import *
+
+
+
+
+def GetSpatialRef(fileshp):
+    """
+    GetSpatialRef
+    """
+    srs = None
+    if isinstance(fileshp,(str,)) and os.path.isfile(fileshp):
+        dataset = ogr.OpenShared(fileshp)
+        if dataset:
+            layer = dataset.GetLayer()
+            srs = layer.GetSpatialRef()
+
+    elif isinstance(fileshp,(str,))  and "epsg:" in fileshp.lower():
+        code = int(fileshp.lower().replace("epsg:",""))
+        srs = osr.SpatialReference()
+        srs.ImportFromEPSG(code)
+
+    else:
+        code = int(fileshp)
+        if code>0:
+            srs = osr.SpatialReference()
+            srs.ImportFromEPSG(code)
+
+    return srs
 
 def GetFeatures(fileshp):
     """
@@ -74,6 +104,7 @@ def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0 ):
 
     dataset = None
     return None
+
 
 def GetAttributeTableByFid(fileshp, layername=0, fid=0):
     """
@@ -129,6 +160,145 @@ def SaveFeature(feature, fileshp=""):
     feature = None
     ds = None
     return fileshp
+
+def CreateShapefile(fileshp, crs=4326, schema={}):
+    """
+    CreateShapefile
+
+    schema={"geometry":"LineString","properties":{"OBJECTID":"int","height":"float"}}
+    """
+    DATATYPE={
+        "Point":ogr.wkbPoint,
+        "LineString":ogr.wkbLineString,
+        "Polygon":ogr.wkbPolygon,
+        "MultiPoint":ogr.wkbMultiPoint,
+        "MultiLineString":ogr.wkbMultiLineString,
+        "MultiPolygon":ogr.wkbMultiPolygon,
+        "int": ogr.OFTInteger,
+        "float":ogr.OFTReal,
+        "str":ogr.OFTString
+    }
+
+    layername = juststem(fileshp)
+    # set up the shapefile driver
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+
+    # create the data source
+    data_source = driver.CreateDataSource(fileshp)
+
+    # create the spatial reference, WGS84
+    srs = GetSpatialRef(crs)
+
+    # create the layer
+    #layer = data_source.CreateLayer(layername, srs, ogr.wkbPoint)
+    dtype = schema["geometry"] if "geometry" in schema else "Point"
+    layer = data_source.CreateLayer(layername, srs, DATATYPE[dtype])
+
+    properties = schema["properties"] if "properties" in schema else {}
+    for name in properties:
+        dtype,dwidth = (properties[name]+":0").split(":")
+        p,w =  math.modf(float(dwidth))
+        p,w = int(p),int(w)
+        field_name = ogr.FieldDefn(name, DATATYPE[dtype])
+        p =255 if p==0 and dtype=="str" else p
+        if w:
+            field_name.SetWidth(w)
+        if p:
+            field_name.SetPrecision(p)
+        layer.CreateField(field_name)
+    # Save and close the data source
+    data_source = None
+
+def WriteRecords(fileshp, records, src_epsg=-1):
+    """
+    WriteRecord
+    """
+    mode = "insert"
+    datasource = ogr.Open(fileshp,1)
+    if datasource:
+        layer = datasource.GetLayer()
+        dsr   = layer.GetSpatialRef()
+        srs   = GetSpatialRef(src_epsg)
+
+        layerDefinition = layer.GetLayerDefn()
+        fieldnames = [layerDefinition.GetFieldDefn(j).GetName() for j in range(layerDefinition.GetFieldCount())]
+
+        for record in records:
+            properties = record["properties"] if "properties" in record else {}
+            fid = int(properties["FID"]) if "FID" in properties else -1
+
+            # create the feature
+            feature = None
+            if fid>=0:
+                mode = "update"
+                feature = layer.GetFeature(fid)
+
+            if not feature:
+                mode = "insert"
+                feature = ogr.Feature(layerDefinition)
+
+            # Set the attributes using the values from the delimited text file
+            for name in properties:
+                value = properties[name]
+                feature.SetField(name, value)
+
+            # create the WKT for the feature using Python string formatting
+            if "geometry" in record:
+                geojson = json.dumps(record["geometry"])
+                geom = ogr.CreateGeometryFromJson(geojson)
+                #srs  = geom.GetSpatialReference() #usually dont work or noinfo
+
+                if srs and not dsr.IsSame(srs):
+                    transform = osr.CoordinateTransformation(srs, dsr)
+                    geom.Transform(transform)
+
+                feature.SetGeometry(geom)
+
+            if mode=="insert":
+                layer.CreateFeature(feature)
+                fid = feature.GetFID()
+                for fieldname in ("FID","OBJECTID",):
+                    if fieldname in fieldnames:
+                        feature.SetField(fieldname, fid)
+                layer.SetFeature(feature)
+            else:
+                layer.SetFeature(feature)
+            feature = None
+
+    # Save and close the data source
+    datasource = None
+
+def DeleteRecords(fileshp, fids=None):
+    """
+    DeleteRecords
+    """
+    datasource = ogr.Open(fileshp, 1)
+    if datasource:
+        layer = datasource.GetLayer()
+        if fids:
+            for fid in fids:
+                layer.DeleteFeature(fid)
+        else:
+            for feature in layer:
+                layer.DeleteFeature(feature.GetFID())
+    datasource = None
+
+def DeleteRecordsByAttribute(fileshp, attrname, values):
+    """
+    DeleteRecordsByAttribute
+    """
+    datasource = ogr.Open(fileshp, 1)
+    if datasource:
+        layer = datasource.GetLayer()
+        layerDefinition = layer.GetLayerDefn()
+        fieldnames = [layerDefinition.GetFieldDefn(j).GetName() for j in range(layerDefinition.GetFieldCount())]
+        if attrname in fieldnames:
+            for feature in layer:
+                for value in listify(values):
+                    if feature.GetField(attrname) == value:
+                        layer.DeleteFeature(feature.GetFID())
+                        break
+    datasource = None
 
 def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
     """

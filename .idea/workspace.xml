@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="04a9cc17-7ce3-4afb-aff0-47a253bd4852" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +44,6 @@
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -54,6 +55,7 @@
       <recent name="D:\Users\vlr20\Projects\GitHub\gecosistema_gdal\gecosistema_gdal" />
     </key>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>

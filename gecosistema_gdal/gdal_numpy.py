@@ -47,6 +47,7 @@ def GDAL_like(filename, fileout=""):
     """
     GDAL_like
     """
+    BSx, BSy, Mb, Nb, M, N = 0,0, 0,0, 0,0
     dataset1 = gdal.Open(filename, gdal.GA_ReadOnly)
     dataset2 = None
     if dataset1:
