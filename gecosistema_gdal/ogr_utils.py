@@ -225,22 +225,27 @@ def WriteRecords(fileshp, records, src_epsg=-1):
 
         for record in records:
             properties = record["properties"] if "properties" in record else {}
-            fid = int(properties["FID"]) if "FID" in properties else -1
+            #fid = int(properties["FID"]) if "FID" in properties else -1
+            fid = int(record["id"].split(".")[1]) if "id" in record else -1
 
             # create the feature
             feature = None
             if fid>=0:
                 mode = "update"
                 feature = layer.GetFeature(fid)
+                print(mode,fid)
 
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
+                print(mode, fid)
 
             # Set the attributes using the values from the delimited text file
             for name in properties:
-                value = properties[name]
-                feature.SetField(name, value)
+                if not name in ("boundedBy",):
+                    value = properties[name]
+                    print("SetField(%s,%s)"%(name,value))
+                    feature.SetField(name, value)
 
             # create the WKT for the feature using Python string formatting
             if "geometry" in record:
