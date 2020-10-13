@@ -123,7 +123,7 @@ def GetAttributeTableByFid(fileshp, layername=0, fid=0):
     dataset = None
     return res
 
-def queryByPoint( fileshp, layername=0, x=0, y=0, point_srs=None, mode="single"):
+def queryByPoint( fileshp, x=0, y=0, point_srs=None, mode="single"):
     """
     queryByPoint
     """
@@ -133,7 +133,7 @@ def queryByPoint( fileshp, layername=0, x=0, y=0, point_srs=None, mode="single")
 
     dataset = ogr.OpenShared(fileshp)
     if dataset:
-        layer = dataset.GetLayer(layername)
+        layer = dataset.GetLayer(0)
         srs = layer.GetSpatialRef()
         if point_srs:
             psrs = osr.SpatialReference()
@@ -142,10 +142,25 @@ def queryByPoint( fileshp, layername=0, x=0, y=0, point_srs=None, mode="single")
                 transform = osr.CoordinateTransformation(psrs, srs)
                 point.Transform(transform)
 
-        layer = dataset.GetLayer(layername)
         for feature in layer:
             geom = feature.GetGeometryRef()
             if point.Intersects( geom ):
+                res.append(feature)
+                if mode.lower()=="single":
+                    break
+    dataset = None
+    return res
+
+def queryByAttributes( fileshp, fieldname, fieldvalue, mode="single"):
+    """
+    queryByAttributes
+    """
+    res = []
+    dataset = ogr.OpenShared(fileshp)
+    if dataset:
+        layer = dataset.GetLayer(0)
+        for feature in layer:
+            if feature.GetFieldIndex(fieldname)>=0 and feature.GetField(fieldname)==fieldvalue:
                 res.append(feature)
                 if mode.lower()=="single":
                     break
