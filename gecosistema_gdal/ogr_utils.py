@@ -29,8 +29,6 @@ import gdal,gdalconst
 from gecosistema_core import *
 
 
-
-
 def GetSpatialRef(fileshp):
     """
     GetSpatialRef
@@ -41,6 +39,7 @@ def GetSpatialRef(fileshp):
         if dataset:
             layer = dataset.GetLayer()
             srs = layer.GetSpatialRef()
+        dataset = None
 
     elif isinstance(fileshp,(str,))  and "epsg:" in fileshp.lower():
         code = int(fileshp.lower().replace("epsg:",""))
@@ -121,6 +120,35 @@ def GetAttributeTableByFid(fileshp, layername=0, fid=0):
         for j in range(layerDefinition.GetFieldCount()):
             fieldname = layerDefinition.GetFieldDefn(j).GetName()
             res[fieldname] = feature.GetField(j)
+    dataset = None
+    return res
+
+def queryByPoint( fileshp, layername=0, x=0, y=0, point_srs=None, mode="single"):
+    """
+    queryByPoint
+    """
+    res = []
+    point = ogr.Geometry(ogr.wkbPoint)
+    point.AddPoint(x,y)
+
+    dataset = ogr.OpenShared(fileshp)
+    if dataset:
+        layer = dataset.GetLayer(layername)
+        srs = layer.GetSpatialRef()
+        if point_srs:
+            psrs = osr.SpatialReference()
+            psrs.ImportFromEPSG(int(point_srs))
+            if  not psrs.IsSame(srs):
+                transform = osr.CoordinateTransformation(psrs, srs)
+                point.Transform(transform)
+
+        layer = dataset.GetLayer(layername)
+        for feature in layer:
+            geom = feature.GetGeometryRef()
+            if point.Intersects( geom ):
+                res.append(feature)
+                if mode.lower()=="single":
+                    break
     dataset = None
     return res
 
