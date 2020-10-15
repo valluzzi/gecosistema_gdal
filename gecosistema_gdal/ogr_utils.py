@@ -151,7 +151,7 @@ def queryByPoint( fileshp, x=0, y=0, point_srs=None, mode="single"):
     dataset = None
     return res
 
-def queryByAttributes( fileshp, fieldname, fieldvalues, mode="single"):
+def queryByAttributes( fileshp, fieldname, fieldvalues, mode="multiple"):
     """
     queryByAttributes
     """
