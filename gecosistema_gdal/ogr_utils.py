@@ -151,7 +151,7 @@ def queryByPoint( fileshp, x=0, y=0, point_srs=None, mode="single"):
     dataset = None
     return res
 
-def queryByAttributes( fileshp, fieldname, fieldvalue, mode="single"):
+def queryByAttributes( fileshp, fieldname, fieldvalues, mode="single"):
     """
     queryByAttributes
     """
@@ -160,10 +160,11 @@ def queryByAttributes( fileshp, fieldname, fieldvalue, mode="single"):
     if dataset:
         layer = dataset.GetLayer(0)
         for feature in layer:
-            if feature.GetFieldIndex(fieldname)>=0 and feature.GetField(fieldname)==fieldvalue:
-                res.append(feature)
-                if mode.lower()=="single":
-                    break
+            if feature.GetFieldIndex(fieldname)>=0:
+                if feature.GetField(fieldname) in listify(fieldvalues):
+                    res.append(feature)
+                    if mode.lower()=="single":
+                        break
     dataset = None
     return res
 
