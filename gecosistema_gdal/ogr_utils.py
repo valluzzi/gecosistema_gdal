@@ -27,7 +27,8 @@ import math,json
 import ogr,osr
 import gdal,gdalconst
 from gecosistema_core import *
-
+from gdal2numpy import GDAL2Numpy,Numpy2GTiff
+from numba import njit
 
 def GetSpatialRef(fileshp):
     """
@@ -168,6 +169,36 @@ def queryByAttributes( fileshp, fieldname, fieldvalues, mode="multiple"):
     dataset = None
     return res
 
+def queryByShape( fileshp, feature, feature_srs=None, mode="single"):
+    """
+    queryByShape
+    """
+    res = []
+    if not feature:
+        return []
+
+    dataset = ogr.OpenShared(fileshp)
+    if dataset:
+        layer = dataset.GetLayer(0)
+        srs = layer.GetSpatialRef()
+
+        shape = feature.GetGeometryRef() if isinstance(feature, ogr.Feature) else feature
+
+        if feature_srs:
+            psrs = osr.SpatialReference()
+            psrs.ImportFromEPSG(int(feature_srs))
+            if  not psrs.IsSame(srs):
+                transform = osr.CoordinateTransformation(psrs, srs)
+                shape.Transform(transform)
+
+        for feature in layer:
+            geom = feature.GetGeometryRef()
+            if shape.Intersects( geom ):
+                res.append(feature)
+                if mode.lower()=="single":
+                    break
+    dataset = None
+    return res
 
 def removeShape(filename):
     """
@@ -253,6 +284,25 @@ def CreateShapefile(fileshp, crs=4326, schema={}):
     # Save and close the data source
     data_source = None
 
+def GetFeatureByAttribute(layer, attrname="OBJECTID", attrvalue=0):
+    """
+    GetFeatureByAttribute
+    """
+    if layer:
+        layerDefinition = layer.GetLayerDefn()
+        fieldnames = [layerDefinition.GetFieldDefn(j).GetName().upper() for j in range(layerDefinition.GetFieldCount())]
+        if attrname.upper() in fieldnames:
+            for feature in layer:
+                if feature.GetField(attrname) == attrvalue:
+                    dataset = None
+                    # patch geometry that sometime is invalid
+                    # create a buffer of 0 meters
+                    buff0m = feature.GetGeometryRef().Buffer(0)
+                    feature.SetGeometry(buff0m)
+                    return feature
+    return None
+
+
 def WriteRecords(fileshp, records, src_epsg=-1):
     """
     WriteRecord
@@ -277,19 +327,20 @@ def WriteRecords(fileshp, records, src_epsg=-1):
             if fid>=0:
                 mode = "update"
                 feature = layer.GetFeature(fid)
-                print(mode,fid)
-
+            if not feature:
+                mode= "update"
+                feature = GetFeatureByAttribute(layer,"OBJECTID",fid)
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
-                print(mode, fid)
 
             # Set the attributes using the values from the delimited text file
-            for name in properties:
-                if not name in ("boundedBy",):
-                    value = properties[name]
-                    print("SetField(%s,%s)"%(name,value))
-                    feature.SetField(name, value)
+            if properties:
+                for name in properties:
+                    if not name in ("boundedBy",):
+                        value = properties[name]
+                        #print("SetField(%s,%s)"%(name,value))
+                        feature.SetField(name, value)
 
             # create the WKT for the feature using Python string formatting
             if "geometry" in record:
@@ -386,3 +437,11 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
             gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
 
         dataset, verctor, target_ds = None, None, None
+
+
+
+
+
+
+
+

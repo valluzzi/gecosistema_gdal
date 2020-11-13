@@ -27,6 +27,7 @@ import gdal,gdalconst
 import numpy as np
 import struct
 from gecosistema_core import *
+from gdal2numpy import GDAL2Numpy,Numpy2GTiff
 
 
 def MapToPixel(mx,my,gt):
@@ -160,114 +161,6 @@ def SetNoData(filename, nodata):
         data, band, dataset = None, None, None
     return None
 
-def GDAL2Numpy(pathname, band=1, dtype='', load_nodata_as = np.nan):
-    """
-    GDAL2Numpy
-    """
-    dataset = gdal.Open(pathname, gdalconst.GA_ReadOnly)
-    if dataset:
-        band = dataset.GetRasterBand(band)
-        cols = dataset.RasterXSize
-        rows = dataset.RasterYSize
-        geotransform = dataset.GetGeoTransform()
-        projection = dataset.GetProjection()
-        nodata = band.GetNoDataValue()
-        bandtype = gdal.GetDataTypeName(band.DataType)
-
-        wdata = band.ReadAsArray(0, 0, cols, rows)
-
-        # translate nodata as Nan
-        if not wdata is None:
-
-            # Output datatype
-            if dtype and dtype != bandtype:
-                wdata = wdata.astype(dtype, copy=False)
-
-            if bandtype in ('Float32', 'Float64', 'CFloat32', 'CFloat64'):
-                if not nodata is None and abs(nodata) > 3.4e38:
-                    wdata[abs(wdata) > 3.4e38] = load_nodata_as
-                elif not nodata is None:
-                    wdata[wdata == nodata] = load_nodata_as
-            elif bandtype in ('Byte', 'Int16', 'Int32', 'UInt16', 'UInt32', 'CInt16', 'CInt32'):
-                #wdata = wdata.astype("Float32", copy=False)
-                if nodata != load_nodata_as:
-                    wdata[wdata == nodata] = load_nodata_as
-
-        band = None
-        dataset = None
-        return (wdata, geotransform, projection)
-    print("file %s not exists!" % (pathname))
-    return (None, None, None)
-
-def Numpy2GTiff(arr, geotransform, projection, filename, save_nodata_as=-9999):
-    """
-    Numpy2GTiff
-    """
-    if isinstance(arr, np.ndarray):
-        rows, cols = arr.shape
-        if rows > 0 and cols > 0:
-            dtype = str(arr.dtype)
-            if dtype in ["uint8"]:
-                fmt = gdal.GDT_Byte
-            elif dtype in ["uint16"]:
-                fmt = gdal.GDT_UInt16
-            elif dtype in ["uint32"]:
-                fmt = gdal.GDT_UInt32
-            elif dtype in ["float32"]:
-                fmt = gdal.GDT_Float32
-            elif dtype in ["float64"]:
-                fmt = gdal.GDT_Float64
-            else:
-                fmt = gdal.GDT_Float64
-
-            CO = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
-            driver = gdal.GetDriverByName("GTiff")
-            dataset = driver.Create(filename, cols, rows, 1, fmt, CO)
-            if (geotransform != None):
-                dataset.SetGeoTransform(geotransform)
-            if (projection != None):
-                dataset.SetProjection(projection)
-            dataset.GetRasterBand(1).SetNoDataValue(save_nodata_as)
-            dataset.GetRasterBand(1).WriteArray(arr)
-            # ?dataset.GetRasterBand(1).ComputeStatistics(0)
-            dataset = None
-            return filename
-    return None
-
-
-def Numpy2AAIGrid(data, geotransform, filename, save_nodata_as=-9999):
-    """
-    Numpy2AAIGrid
-    """
-    (x0, pixelXSize, rot, y0, rot, pixelYSize) = geotransform
-    (rows, cols) = data.shape
-    stream = open(filename, "wb")
-    stream.write("ncols         %d\r\n" % (cols))
-    stream.write("nrows         %d\r\n" % (rows))
-    stream.write("xllcorner     %d\r\n" % (x0))
-    stream.write("yllcorner     %d\r\n" % (y0 + pixelYSize * rows))
-    stream.write("cellsize      %d\r\n" % (pixelXSize))
-    stream.write("NODATA_value  %d\r\n" % (save_nodata_as))
-    template = ("%.7g " * cols) + "\r\n"
-    for row in data:
-        line = template % tuple(row.tolist())
-        stream.write(line)
-    stream.close()
-    return filename
-
-def Numpy2Gdal(data, geotransform, projection, filename, save_nodata_as=-9999):
-    """
-    Numpy2Gdal
-    """
-    ext = os.path.splitext(filename)[1][1:].strip().lower()
-    mkdirs(justpath(filename))
-    if ext == "tif" or ext == "tiff":
-        return Numpy2GTiff(data, geotransform, projection, filename, save_nodata_as)
-    elif ext == "asc":
-        return Numpy2AAIGrid(data, geotransform, filename, save_nodata_as)
-    else:
-        return ""
-
 def Numpy2Raster(arr, x0, y0, epsg, px, py, filename="", save_nodata_as=-9999):
     """
     Numpy2Raster
@@ -276,7 +169,7 @@ def Numpy2Raster(arr, x0, y0, epsg, px, py, filename="", save_nodata_as=-9999):
     srs = osr.SpatialReference()
     srs.ImportFromEPSG(int("%s"%(epsg)))
     prj = srs.ExportToWkt()
-    return Numpy2Gdal(arr, gt, prj, filename, save_nodata_as)
+    return Numpy2GTiff(arr, gt, prj, filename, save_nodata_as)
 
 def GDAL_LZW( filename,  fileout="", save_nodata_as=-9999 ):
     """
@@ -296,8 +189,8 @@ def GDALError( filenameA, filenameB, file_err):
     shape and projection must be the same
     """
     file_err = file_err if file_err else "err.tif"
-    data1, _, _ = GDAL2Numpy(filenameA, dtype="Float32", load_nodata_as=0.0)
-    data2, _, _ = GDAL2Numpy(filenameB, dtype="Float32", load_nodata_as=0.0)
+    data1, _, _ = GDAL2Numpy(filenameA, dtype=np.Float32, load_nodata_as=0.0)
+    data2, _, _ = GDAL2Numpy(filenameB, dtype=np.Float32, load_nodata_as=0.0)
 
     Numpy2GTiff( data1-data2, gt, prj, file_err, save_nodata_as=0.0)
 
@@ -346,7 +239,7 @@ def gdal_Buffer(src_dataset, dst_dataset=None, distance=10, verbose=True):
         h += 1
     ds, temp_array, data = None, None, None
 
-    Numpy2Gdal(out_array.astype("uint8"), gt, prj, dst_dataset, no_data)
+    Numpy2GTiff(out_array.astype("uint8"), gt, prj, dst_dataset, no_data)
     out_array=None
     return True
 
