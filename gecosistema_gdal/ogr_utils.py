@@ -383,6 +383,31 @@ def DeleteRecords(fileshp, fids=None):
                 layer.DeleteFeature(feature.GetFID())
     datasource = None
 
+def UpdateRecordsByAttribute(fileshp, attrnames, values):
+    """
+    UpdateRecordsByAttribute(s)
+    """
+    datasource = ogr.Open(fileshp, 1)
+    if datasource:
+        layer = datasource.GetLayer()
+        layerDefinition = layer.GetLayerDefn()
+        fieldnames = [layerDefinition.GetFieldDefn(j).GetName() for j in range(layerDefinition.GetFieldCount())]
+        attrnames = listify(attrnames)
+        values    = listify(values)
+        n = min(len(attrnames),len(values))
+        for feature in layer:
+            something_has_changed = False
+            for j in range(n):
+                attrname = attrnames[j]
+                if attrname in fieldnames:
+                    feature.SetField(attrname,values[j])
+                    something_has_changed = True
+            if something_has_changed:
+                layer.SetFeature(feature)
+
+    datasource = None
+
+
 def DeleteRecordsByAttribute(fileshp, attrname, values):
     """
     DeleteRecordsByAttribute
