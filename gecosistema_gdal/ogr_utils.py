@@ -320,16 +320,22 @@ def WriteRecords(fileshp, records, src_epsg=-1):
         for record in records:
             properties = record["properties"] if "properties" in record else {}
             #fid = int(properties["FID"]) if "FID" in properties else -1
-            fid = int(record["id"].split(".")[1]) if "id" in record else -1
+            #Case wms (gml)
+            if "id" in record and "." in record["id"]:
+                fid = int(record["id"].split(".")[1])
+            elif "id" in record:
+                fid = int(record["id"])
+            else:
+                fid = -1
 
             # create the feature
             feature = None
             if fid>=0:
                 mode = "update"
-                feature = layer.GetFeature(fid)
+                feature = GetFeatureByAttribute(layer, "OBJECTID", fid)
             if not feature:
                 mode= "update"
-                feature = GetFeatureByAttribute(layer,"OBJECTID",fid)
+                feature = layer.GetFeature(fid)
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
