@@ -30,6 +30,49 @@ from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
 from numba import njit
 
+def ExportToJson(feature, fieldnames=[], coord_precision=2):
+    """
+    ExportToJson
+    """
+    n = len(fieldnames)
+    geom = feature.GetGeometryRef() #.Simplify(20.0)
+    geometry_type = geom.GetGeometryName().capitalize()
+
+    if geometry_type =="Point":
+        x,y = geom.GetPoints()[0]
+        coords = [round(x,coord_precision), round(y,coord_precision)]
+    elif geometry_type =="Linestring":
+        geometry_type = "LineString"
+        coords = [ list(p) for p in geom.GetPoints() ]
+        coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
+    elif geometry_type =="Multiline":
+        geometry_type = "MultiLine"
+        coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in line if ring.GetPointCount()] for line in geom]
+    elif geometry_type =="Polygon":
+        coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+    elif geometry_type =="Multipolygon":
+        geometry_type = "MultiPolygon"
+        coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+    else:
+        print("TODO:",geometry_type)
+
+    if len(coords)==0:
+        return False
+
+    props  = {}
+    for j in range(n):
+        props[fieldnames[j]]=feature.GetField(fieldnames[j])
+
+    return {
+        "id": feature.GetFID(),
+        "type": "Feature",
+        "geometry": {
+            "type":geometry_type,
+            "coordinates": coords
+        },
+        "properties": props
+    }
+
 def GetSpatialRef(fileshp):
     """
     GetSpatialRef
