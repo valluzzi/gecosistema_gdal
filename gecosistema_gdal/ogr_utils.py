@@ -414,7 +414,7 @@ def WriteRecords(fileshp, records, src_epsg=-1):
             properties = record["properties"] if "properties" in record else {}
             #fid = int(properties["FID"]) if "FID" in properties else -1
             #Case wms (gml)
-            if "id" in record and istring(record["id"]) and "." in record["id"]:
+            if "id" in record and isstring(record["id"]) and "." in record["id"]:
                 fid = int(record["id"].split(".")[1])
             elif "id" in record:
                 fid = int(record["id"])
