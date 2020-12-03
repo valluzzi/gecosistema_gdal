@@ -42,7 +42,7 @@ def CreateSpatialIndex(fileshp):
             layer.ResetReading()
             for feature in layer:
                 if feature.GetGeometryRef():
-                    minx,miny,maxx,maxy = feature.GetGeometryRef().Buffer(0).GetEnvelope()
+                    minx,miny,maxx,maxy = feature.GetGeometryRef().GetEnvelope()
                     index.insert(feature.GetFID(), (minx,maxx,miny,maxy))
         return index
     return None
