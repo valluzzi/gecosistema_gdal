@@ -35,14 +35,15 @@ def CreateSpatialIndex(fileshp):
     """
     fileidx = forceext(fileshp,"idx")
     dataset = ogr.OpenShared(fileshp)
-    if dataset and not os.path.isfile(fileidx):
-        index = rtree.index.Index(fileidx.replace(".idx",""))
-        layer = dataset.GetLayer(0)
-        layer.ResetReading()
-        for feature in layer:
-            if feature.GetGeometryRef():
-                minx,miny,maxx,maxy = feature.GetGeometryRef().Buffer(0).GetEnvelope()
-                index.insert(feature.GetFID(), (minx,maxx,miny,maxy))
+    if dataset:
+        index = rtree.index.Index(forceext(fileidx,""))
+        if not os.path.isfile(fileidx):
+            layer = dataset.GetLayer(0)
+            layer.ResetReading()
+            for feature in layer:
+                if feature.GetGeometryRef():
+                    minx,miny,maxx,maxy = feature.GetGeometryRef().Buffer(0).GetEnvelope()
+                    index.insert(feature.GetFID(), (minx,maxx,miny,maxy))
         return index
     return None
 
