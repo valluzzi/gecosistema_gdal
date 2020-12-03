@@ -24,11 +24,28 @@
 # -------------------------------------------------------------------------------
 import os,sys
 import math,json
-import ogr,osr
+import ogr,osr,rtree
 import gdal,gdalconst
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
-from numba import njit
+
+def CreateSpatialIndex(fileshp):
+    """
+    CreateSpatialIndex
+    """
+    fileidx = forceext(fileshp,"idx")
+    dataset = ogr.OpenShared(fileshp)
+    if dataset and not os.path.isfile(fileidx):
+        index = rtree.index.Index(fileidx)
+        layer = dataset.GetLayer(0)
+        layer.ResetReading()
+        for feature in layer:
+            if feature.GetGeometryRef():
+                minx,miny,maxx,maxy = feature.GetGeometryRef().Buffer(0).GetEnvelope()
+                index.insert(feature.GetFID(), (minx,maxx,miny,maxy))
+        return index
+    return None
+
 
 def ExportToJson(feature, fieldnames=[], coord_precision=2):
     """
@@ -225,21 +242,45 @@ def queryByShape( fileshp, feature, feature_srs=None, mode="single"):
         layer = dataset.GetLayer(0)
         srs = layer.GetSpatialRef()
 
-        shape = feature.GetGeometryRef() if isinstance(feature, ogr.Feature) else feature
+        qshape = feature.GetGeometryRef() if isinstance(feature, ogr.Feature) else feature
 
         if feature_srs:
             psrs = osr.SpatialReference()
             psrs.ImportFromEPSG(int(feature_srs))
             if  not psrs.IsSame(srs):
                 transform = osr.CoordinateTransformation(psrs, srs)
-                shape.Transform(transform)
+                qshape.Transform(transform)
 
+        """
+        # 2) 1st sequential approach
         for feature in layer:
             geom = feature.GetGeometryRef()
-            if shape.Intersects( geom ):
+            if qshape.Intersects( geom ):
                 res.append(feature)
                 if mode.lower()=="single":
                     break
+        """
+
+        # 2) Rtree index approach
+        fileidx = forceext(fileshp,"idx")
+        if os.path.isfile(fileidx):
+            minx,miny,maxx,maxy = qshape.GetEnvelope()
+            for fid in list(index.intersection((minx, maxx, miny, maxy))):
+                feature = layer.GetFeature(fid)
+                res.append(feature)
+                if mode.lower() == "single":
+                    break
+        else:
+            # 3) Spatial filter approach
+            geom = feature.GetGeometryRef()
+            layer.SetSpatialFilter(qshape)
+            layer.ResetReading()
+            for feature in layer:
+                res.append(feature)
+                if mode.lower() == "single":
+                    break
+
+
     dataset = None
     return res
 
