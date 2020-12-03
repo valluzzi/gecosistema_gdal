@@ -33,10 +33,10 @@ def CreateSpatialIndex(fileshp):
     """
     CreateSpatialIndex
     """
-    fileidx = forceext(fileshp,"")
+    fileidx = forceext(fileshp,"idx")
     dataset = ogr.OpenShared(fileshp)
     if dataset and not os.path.isfile(fileidx):
-        index = rtree.index.Index(fileidx)
+        index = rtree.index.Index(fileidx.replace(".idx",""))
         layer = dataset.GetLayer(0)
         layer.ResetReading()
         for feature in layer:
@@ -262,7 +262,7 @@ def queryByShape( fileshp, feature, feature_srs=None, mode="single"):
         """
 
         # 2) Rtree index approach
-        fileidx = forceext(fileshp,"idx")
+        fileidx = forceext(fileshp,".idx")
         if os.path.isfile(fileidx):
             minx,miny,maxx,maxy = qshape.GetEnvelope()
             for fid in list(index.intersection((minx, maxx, miny, maxy))):
