@@ -33,7 +33,7 @@ def CreateSpatialIndex(fileshp):
     """
     CreateSpatialIndex
     """
-    fileidx = forceext(fileshp,"idx")
+    fileidx = forceext(fileshp,"")
     dataset = ogr.OpenShared(fileshp)
     if dataset and not os.path.isfile(fileidx):
         index = rtree.index.Index(fileidx)
