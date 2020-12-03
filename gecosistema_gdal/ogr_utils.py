@@ -55,6 +55,34 @@ def CreateSpatialIndex(fileshp):
         return index
     return None
 
+def GetSpatialIndex(fileshp):
+    """
+    GetSpatialIndex
+    """
+    index = None
+    if not os.path.isfile(forceext(fileshp,"idx")):
+        return None
+    try:
+        index = rtree.index.Index(forceext(fileshp, ""))
+    except Exception as ex:
+        print("CreateSpatialIndex:", ex)
+    return index
+
+def UpdateSpatialIndex(fileshp, features)
+    """
+    UpdateSpatialIndex
+    """
+    index = None
+    if os.path.isfile(forceext(fileshp, "idx")):
+        try:
+            index = rtree.index.Index(forceext(fileshp, ""))
+            for feature in listify(features):
+                minx, miny, maxx, maxy = feature.GetGeometryRef().GetEnvelope()
+                index.insert(feature.GetFID(), (minx, maxx, miny, maxy))
+        except Exception as ex:
+            print("UpdateSpatialIndex:", ex)
+        return index
+
 
 def ExportToJson(feature, fieldnames=[], coord_precision=2):
     """
@@ -453,6 +481,7 @@ def WriteRecords(fileshp, records, src_epsg=-1):
 
                 feature.SetGeometry(geom)
 
+
             if mode=="insert":
                 layer.CreateFeature(feature)
                 fid = feature.GetFID()
@@ -460,8 +489,13 @@ def WriteRecords(fileshp, records, src_epsg=-1):
                     if fieldname in fieldnames:
                         feature.SetField(fieldname, fid)
                 layer.SetFeature(feature)
+                # update the spatial index
+                UpdateSpatialIndex(fileshp, feature)
+
             else:
                 layer.SetFeature(feature)
+                # update the spatial index
+                UpdateSpatialIndex(fileshp, feature)
             feature = None
 
     # Save and close the data source
