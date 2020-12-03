@@ -29,6 +29,7 @@ import gdal,gdalconst
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
 
+
 def CreateSpatialIndex(fileshp):
     """
     CreateSpatialIndex
@@ -36,14 +37,21 @@ def CreateSpatialIndex(fileshp):
     fileidx = forceext(fileshp,"idx")
     dataset = ogr.OpenShared(fileshp)
     if dataset:
-        index = rtree.index.Index(forceext(fileidx,""))
+        indexname = forceext(fileidx,"")
         if not os.path.isfile(fileidx):
+            index = rtree.index.Index(indexname)
             layer = dataset.GetLayer(0)
             layer.ResetReading()
             for feature in layer:
                 if feature.GetGeometryRef():
                     minx,miny,maxx,maxy = feature.GetGeometryRef().GetEnvelope()
                     index.insert(feature.GetFID(), (minx,maxx,miny,maxy))
+        else:
+            try:
+                index = rtree.index.Index(indexname)
+            except Exception as ex:
+                print("CreateSpatialIndex:",ex)
+                index=None
         return index
     return None
 
@@ -406,7 +414,9 @@ def WriteRecords(fileshp, records, src_epsg=-1):
             properties = record["properties"] if "properties" in record else {}
             #fid = int(properties["FID"]) if "FID" in properties else -1
             #Case wms (gml)
-            if "id" in record and "." in record["id"]:
+            if "id" in record and not record["id"]:
+                fid= -1
+            elif "id" in record and "." in record["id"]:
                 fid = int(record["id"].split(".")[1])
             elif "id" in record:
                 fid = int(record["id"])
