@@ -450,13 +450,8 @@ def WriteRecords(fileshp, records, src_epsg=-1):
                 fid = -1
 
             # create the feature
-            feature = None
-            if fid>=0:
-                mode = "update"
-                feature = GetFeatureByAttribute(layer, "OBJECTID", fid)
-            if not feature:
-                mode= "update"
-                feature = layer.GetFeature(fid)
+            mode= "update"
+            feature = layer.GetFeature(fid)
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
@@ -509,7 +504,7 @@ def DeleteRecords(fileshp, fids=None):
     if datasource:
         layer = datasource.GetLayer()
         if fids:
-            for fid in fids:
+            for fid in listify(fids):
                 layer.DeleteFeature(fid)
         else:
             for feature in layer:
