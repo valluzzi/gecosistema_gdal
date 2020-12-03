@@ -68,7 +68,7 @@ def GetSpatialIndex(fileshp):
         print("CreateSpatialIndex:", ex)
     return index
 
-def UpdateSpatialIndex(fileshp, features)
+def UpdateSpatialIndex(fileshp, features):
     """
     UpdateSpatialIndex
     """
