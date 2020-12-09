@@ -266,7 +266,7 @@ def queryByAttributes( fileshp, fieldname, fieldvalues, mode="multiple"):
     dataset = None
     return res
 
-def queryByShape( fileshp, feature, feature_srs=None, mode="single"):
+def queryByShape( fileshp, feature, feature_epsg=None, mode="single"):
     """
     queryByShape
     """
@@ -281,11 +281,12 @@ def queryByShape( fileshp, feature, feature_srs=None, mode="single"):
 
         qshape = feature.GetGeometryRef() if isinstance(feature, ogr.Feature) else feature
 
-        if feature_srs:
-            psrs = osr.SpatialReference()
-            psrs.ImportFromEPSG(int(feature_srs))
-            if  not psrs.IsSame(srs):
-                transform = osr.CoordinateTransformation(psrs, srs)
+        if feature_epsg:
+            qsrs = osr.SpatialReference()
+            qsrs.ImportFromEPSG(int(feature_epsg))
+            if  not qsrs.IsSame(srs):
+                #transform the query feature in layer srs
+                transform = osr.CoordinateTransformation(qsrs, srs)
                 qshape.Transform(transform)
 
         """
@@ -304,9 +305,10 @@ def queryByShape( fileshp, feature, feature_srs=None, mode="single"):
             minx,miny,maxx,maxy = qshape.GetEnvelope()
             for fid in list(index.intersection((minx, maxx, miny, maxy))):
                 feature = layer.GetFeature(fid)
-                res.append(feature)
-                if mode.lower() == "single":
-                    break
+                if feature:
+                    res.append(feature)
+                    if mode.lower() == "single":
+                        break
         else:
             # 3) Spatial filter approach
             geom = feature.GetGeometryRef()
@@ -520,19 +522,21 @@ def UpdateRecordsByAttribute(fileshp, attrnames, values):
         layer = datasource.GetLayer()
         layerDefinition = layer.GetLayerDefn()
         fieldnames = [layerDefinition.GetFieldDefn(j).GetName() for j in range(layerDefinition.GetFieldCount())]
-        attrnames = listify(attrnames)
-        values    = listify(values)
+        attrnames  = listify(attrnames)
+        values     = listify(values)
         n = min(len(attrnames),len(values))
         for feature in layer:
             something_has_changed = False
             for j in range(n):
                 attrname = attrnames[j]
                 if attrname in fieldnames:
-                    feature.SetField(attrname,values[j])
+                    value = value[j]
+                    if isinstance(value,("str",)) and value in fieldnames:
+                        value = feature.GetField(value)
+                    feature.SetField(attrname,value)
                     something_has_changed = True
             if something_has_changed:
                 layer.SetFeature(feature)
-
     datasource = None
 
 
