@@ -530,7 +530,7 @@ def UpdateRecordsByAttribute(fileshp, attrnames, values):
             for j in range(n):
                 attrname = attrnames[j]
                 if attrname in fieldnames:
-                    value = value[j]
+                    value = values[j]
                     if isinstance(value,("str",)) and value in fieldnames:
                         value = feature.GetField(value)
                     feature.SetField(attrname,value)
