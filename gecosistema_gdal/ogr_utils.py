@@ -430,10 +430,12 @@ def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None ):
         w, p  = (fieldsize+ ".0").split(".")[0:2]
         p, w = int(p), int(w)
         fielddefn = ogr.FieldDefn(fieldname, DATATYPE[fieldtype])
-        w = 255 if w == 0 and fieldtype in ("str","text") else p
+        w = 254 if w == 0 and fieldtype in ("str","text") else w
         if w:
+            print("set width to %d"%w)
             fielddefn.SetWidth(w)
         if p:
+            print("set precision to %2" % p)
             fielddefn.SetPrecision(p)
         if fieldvalue!=None:
             fielddefn.SetDefault(fieldvalue)
