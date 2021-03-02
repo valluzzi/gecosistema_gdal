@@ -32,6 +32,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     setup_requires=['gdal2numpy'],
-    install_requires=[]
+    install_requires=['rtree','gecosistema_core','gdal']
 
 )

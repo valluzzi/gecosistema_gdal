@@ -374,7 +374,8 @@ def CreateShapefile(fileshp, crs=4326, schema={}):
         "MultiPolygon":ogr.wkbMultiPolygon,
         "int": ogr.OFTInteger,
         "float":ogr.OFTReal,
-        "str":ogr.OFTString
+        "str":ogr.OFTString,
+        "text":ogr.OFTString
     }
 
     layername = juststem(fileshp)
@@ -406,6 +407,47 @@ def CreateShapefile(fileshp, crs=4326, schema={}):
         layer.CreateField(field_name)
     # Save and close the data source
     data_source = None
+
+def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None ):
+    """
+    AddField
+    """
+    ds = ogr.Open(fileshp,1)
+    if ds:
+        DATATYPE = {
+            "Point": ogr.wkbPoint,
+            "LineString": ogr.wkbLineString,
+            "Polygon": ogr.wkbPolygon,
+            "MultiPoint": ogr.wkbMultiPoint,
+            "MultiLineString": ogr.wkbMultiLineString,
+            "MultiPolygon": ogr.wkbMultiPolygon,
+            "int": ogr.OFTInteger,
+            "float": ogr.OFTReal,
+            "str": ogr.OFTString,
+            "text": ogr.OFTString
+        }
+        layer = ds.GetLayer()
+        w, p  = (fieldsize+ ".0").split(".")[0:2]
+        p, w = int(p), int(w)
+        fielddefn = ogr.FieldDefn(fieldname, DATATYPE[fieldtype])
+        w = 255 if w == 0 and fieldtype in ("str","text") else p
+        if w:
+            fielddefn.SetWidth(w)
+        if p:
+            fielddefn.SetPrecision(p)
+        if fieldvalue!=None:
+            fielddefn.SetDefault(fieldvalue)
+        layer.CreateField(fielddefn)
+
+        #update features to fdefault value
+        if fieldvalue!=None:
+            layer.ResetReading()
+            for feature in layer:
+                feature.SetField(fieldname, fieldvalue)
+                layer.SetFeature(feature)
+
+        layer, ds = None,None
+
 
 def GetFeatureByAttribute(layer, attrname="OBJECTID", attrvalue=0):
     """
