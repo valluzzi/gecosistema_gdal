@@ -408,6 +408,19 @@ def CreateShapefile(fileshp, crs=4326, schema={}):
     # Save and close the data source
     data_source = None
 
+def GetFieldNames(fileshp):
+    """
+    GetFieldNames
+    """
+    res = []
+    ds = ogr.OpenShared(fileshp)
+    if ds:
+        layer = ds.GetLayer()
+        defn = layer.GetLayerDefn()
+        for j in range(defn.GetFieldCount()):
+            res.append(defn.GetFieldDefn(j).GetName())
+    return res
+
 def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None ):
     """
     AddField
@@ -426,20 +439,28 @@ def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None ):
             "str": ogr.OFTString,
             "text": ogr.OFTString
         }
+
         layer = ds.GetLayer()
+
+        #collect fieldnames to check if presents--------------
+        fieldnames = []
+        defn = layer.GetLayerDefn()
+        for j in range(defn.GetFieldCount()):
+            fieldnames.append(defn.GetFieldDefn(j).GetName().lower())
+        #-----------------------------------------------------
+
         w, p  = (fieldsize+ ".0").split(".")[0:2]
         p, w = int(p), int(w)
         fielddefn = ogr.FieldDefn(fieldname, DATATYPE[fieldtype])
         w = 254 if w == 0 and fieldtype in ("str","text") else w
         if w:
-            print("set width to %d"%w)
             fielddefn.SetWidth(w)
         if p:
-            print("set precision to %2" % p)
             fielddefn.SetPrecision(p)
         if fieldvalue!=None:
             fielddefn.SetDefault(fieldvalue)
-        layer.CreateField(fielddefn)
+        if not fieldname.lower() in fieldnames:
+            layer.CreateField(fielddefn)
 
         #update features to fdefault value
         if fieldvalue!=None:
