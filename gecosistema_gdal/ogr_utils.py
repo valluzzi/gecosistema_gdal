@@ -101,9 +101,10 @@ def ExportToJson(feature, fieldnames=[], coord_precision=2):
         geometry_type = "LineString"
         coords = [ list(p) for p in geom.GetPoints() ]
         coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
-    elif geometry_type =="Multiline":
-        geometry_type = "MultiLine"
-        coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in line if ring.GetPointCount()] for line in geom]
+    elif geometry_type == "Multilinestring":
+        geometry_type = "MultiLineString"
+        segments = [[list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0)]
+        coords = [[[round(x, coord_precision), round(y, coord_precision)] for x, y in segment] for segment in segments]
     elif geometry_type =="Polygon":
         coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
     elif geometry_type =="Multipolygon":
