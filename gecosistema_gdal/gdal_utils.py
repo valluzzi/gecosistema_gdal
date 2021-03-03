@@ -22,8 +22,8 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
-import osr,ogr
-import gdal,gdalconst
+from osgeo import osr,ogr
+from osgeo import gdal,gdalconst
 import numpy as np
 import struct
 from gecosistema_core import *

@@ -24,8 +24,10 @@
 # -------------------------------------------------------------------------------
 import os,sys
 import math,json
-import ogr,osr,rtree
-import gdal,gdalconst
+
+import rtree
+from osgeo import ogr,osr
+from osgeo import gdal,gdalconst
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
 

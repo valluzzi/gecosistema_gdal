@@ -26,7 +26,7 @@ import numpy as np
 
 import datetime
 import threading
-import gdal
+from osgeo import gdal
 from gecosistema_core import *
 
 def GDAL_blocksize(filename):

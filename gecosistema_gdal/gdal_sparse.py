@@ -22,10 +22,8 @@
 #
 # Created:     24/07/2019
 # -------------------------------------------------------------------------------
-import osr
 import numpy as np
-import gdal,gdalconst
-
+from osgeo import gdal,gdalconst, osr
 from scipy.sparse import issparse
 
 
