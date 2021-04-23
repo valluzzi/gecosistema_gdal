@@ -33,7 +33,6 @@ import tempfile
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
 from .gdalwarp import *
-from .ogr_utils import Rectangle,CreateRectangleShape
 
 
 
@@ -563,6 +562,40 @@ def gdal_contour(filesrc, filedest=None, step=0.0, verbose=False):
         return Exec(command, env, precond=[filesrc], postcond=[filedest], skipIfExists=False, verbose=verbose)
 
     return False
+
+def Rectangle( minx, miny, maxx, maxy ):
+    """
+    Rectangle
+    """
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(minx, miny)
+    ring.AddPoint(maxx, miny)
+    ring.AddPoint(maxx, maxy)
+    ring.AddPoint(minx, maxy)
+    ring.AddPoint(minx, miny)
+    # Create polygon
+    poly = ogr.Geometry(ogr.wkbPolygon)
+    poly.AddGeometry(ring)
+    return poly
+
+def CreateRectangleShape( minx, miny, maxx, maxy, srs,fileshp="tempxy...."):
+    """
+    CreateRectangleShape
+    """
+    fileshp = fileshp if fileshp else "./tempdir/rect.shp"
+    # Write rest to Shapefile
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    if os.path.exists(fileshp):
+        driver.DeleteDataSource(fileshp)
+    ds = driver.CreateDataSource(fileshp)
+    layer = ds.CreateLayer(fileshp, srs, geom_type=ogr.wkbPolygon)
+    featureDefn = layer.GetLayerDefn()
+    feature = ogr.Feature(featureDefn)
+    rect = Rectangle(minx, miny, maxx, maxy)
+    feature.SetGeometry(rect)
+    layer.CreateFeature(feature)
+    feature, layer, ds = None, None, None
+    return fileshp
 
 def RasterLike(filetif, filetpl, fileout=None):
     """
