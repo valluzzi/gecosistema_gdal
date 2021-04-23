@@ -30,6 +30,7 @@ from osgeo import ogr,osr
 from osgeo import gdal,gdalconst
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
+from .gdal_utils import GetSpatialRef
 
 
 def CreateSpatialIndex(fileshp):
@@ -130,10 +131,43 @@ def ExportToJson(feature, fieldnames=[], coord_precision=2):
         "properties": props
     }
 
+def Rectangle( minx, miny, maxx, maxy ):
+    """
+    Rectangle
+    """
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(minx, miny)
+    ring.AddPoint(maxx, miny)
+    ring.AddPoint(maxx, maxy)
+    ring.AddPoint(minx, maxy)
+    ring.AddPoint(minx, miny)
+    # Create polygon
+    poly = ogr.Geometry(ogr.wkbPolygon)
+    poly.AddGeometry(ring)
+    return poly
+
+def CreateRectangleShape( minx, miny, maxx, maxy, srs,fileshp="tempxy...."):
+    """
+    CreateRectangleShape
+    """
+    fileshp = fileshp if fileshp else "./tempdir/rect.shp"
+    # Write rest to Shapefile
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    if os.path.exists(fileshp):
+        driver.DeleteDataSource(fileshp)
+    ds = driver.CreateDataSource(fileshp)
+    layer = ds.CreateLayer(fileshp, srs, geom_type=ogr.wkbPolygon)
+    featureDefn = layer.GetLayerDefn()
+    feature = ogr.Feature(featureDefn)
+    rect = Rectangle(minx, miny, maxx, maxy)
+    feature.SetGeometry(rect)
+    layer.CreateFeature(feature)
+    feature, layer, ds = None, None, None
+    return fileshp
+
+"""obsolete
 def GetSpatialRef(fileshp):
-    """
-    GetSpatialRef
-    """
+
     srs = None
     if isinstance(fileshp,(str,)) and os.path.isfile(fileshp):
         dataset = ogr.OpenShared(fileshp)
@@ -154,6 +188,7 @@ def GetSpatialRef(fileshp):
             srs.ImportFromEPSG(code)
 
     return srs
+"""
 
 def GetFeatures(fileshp):
     """
@@ -629,6 +664,7 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
     """
     RasterizeLike
     """
+    file_tif = file_tif if file_tif else forceext(file_shp,"tif")
     dataset = gdal.Open(file_dem, gdalconst.GA_ReadOnly)
     vector  = ogr.OpenShared(file_shp)
     if dataset and vector:
