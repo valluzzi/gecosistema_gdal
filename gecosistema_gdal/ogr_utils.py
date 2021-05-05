@@ -647,8 +647,8 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
         layer = vector.GetLayer()
 
         # Create the destination data source
-
-        target_ds = gdal.GetDriverByName('GTiff').Create(file_tif, n, m, 1, band.DataType)
+        CO = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
+        target_ds = gdal.GetDriverByName('GTiff').Create(file_tif, n, m, 1, band.DataType, CO)
         if (gt != None):
             target_ds.SetGeoTransform(gt)
         if (prj != None):
