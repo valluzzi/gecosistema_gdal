@@ -25,7 +25,14 @@
 import os,site,glob
 from osgeo import gdal,gdalconst
 from gecosistema_core import *
+import tempfile
+import datetime
 
+def tempfilename(prefix="tmp", suffix=""):
+    """
+    tempfilename
+    """
+    return "%s/%s%s%s"%(tempfile.gettempdir(), prefix, datetime.datetime.now().timestamp(), suffix)
 
 def find_PROJ_LIB():
     """
@@ -51,10 +58,11 @@ def find_GDAL_DATA():
             break
     return justpath(pathnames[0]) if len(pathnames) else ""
 
-def gdalwarp(filelist, fileout, dstSRS="", cutline="", cropToCutline=False, pixelsize=(0, 0)):
+def gdalwarp(filelist, fileout=None, dstSRS="", cutline="", cropToCutline=False, pixelsize=(0, 0)):
     """
     gdalwarp
     """
+    fileout = fileout if fileout else tempfilename(suffix=".tif")
 
     kwargs = {
         "format": "GTiff",

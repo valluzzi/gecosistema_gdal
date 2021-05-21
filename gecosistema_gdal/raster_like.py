@@ -22,13 +22,12 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
-
-import tempfile
 from osgeo  import gdal,gdalconst
 from osgeo import osr, ogr
 import numpy as np
 from .gdalwarp import *
 from .gdal_utils import *
+
 
 def EquivalentRasterFiles(filename1, filename2):
     """
@@ -141,41 +140,40 @@ def RasterLike(filetif, filetpl, fileout=None, verbose=False):
         print(GetExtent(filetif))
         print(GetExtent(filetpl))
 
-    with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp_out:
+    if verbose:
+        print("1)gdalwarp...")
+    file_warp1 = gdalwarp([filetif], dstSRS=GetSpatialRef(filetpl), pixelsize=GetPixelSize(filetpl))
+
+    tif_minx, tif_miny, tif_maxx, tif_maxy = GetExtent(file_warp1)
+    tpl_minx, tpl_miny, tpl_maxx, tpl_maxy = GetExtent(filetpl)
+    # create tif and template rectangles
+    # to detect intersections
+    tif_rectangle = Rectangle(tif_minx, tif_miny, tif_maxx, tif_maxy)
+    tpl_rectangle = Rectangle(tpl_minx, tpl_miny, tpl_maxx, tpl_maxy)
+
+    if verbose:
+        print('rectangle done')
+    if tif_rectangle.Intersects(tpl_rectangle):
         if verbose:
-            print("1)gdalwarp...")
-        gdalwarp([filetif], tmp_out.name, dstSRS=GetSpatialRef(filetpl), pixelsize=GetPixelSize(filetpl))
-
-        tif_minx, tif_miny, tif_maxx, tif_maxy = GetExtent(tmp_out.name)
-        tpl_minx, tpl_miny, tpl_maxx, tpl_maxy = GetExtent(filetpl)
-        # create tif and template rectangles
-        # to detect intersections
-        tif_rectangle = Rectangle(tif_minx, tif_miny, tif_maxx, tif_maxy)
-        tpl_rectangle = Rectangle(tpl_minx, tpl_miny, tpl_maxx, tpl_maxy)
-
+            print('intersection')
+        file_rect = tempfilename(suffix=".shp")
+        spatialRefSys = GetSpatialRef(filetpl)
+        demshape = CreateRectangleShape(tpl_minx, tpl_miny, tpl_maxx, tpl_maxy,
+                                        srs=spatialRefSys,
+                                        fileshp=file_rect)
         if verbose:
-            print('rectangle done')
-        if tif_rectangle.Intersects(tpl_rectangle):
-            if verbose:
-                print('intersection')
-            with tempfile.NamedTemporaryFile(suffix='.shp') as fp:
-                spatialRefSys = GetSpatialRef(filetpl)
-                demshape = CreateRectangleShape(tpl_minx, tpl_miny, tpl_maxx, tpl_maxy,
-                                                srs=spatialRefSys,
-                                                fileshp=fp.name)
-                if verbose:
-                    print("2)gdalwarp...")
-                gdalwarp([tmp_out.name], fileout, cutline=demshape, cropToCutline=True,
-                         dstSRS=GetSpatialRef(filetpl), pixelsize=GetPixelSize(filetpl))
+            print("2)gdalwarp...")
+        gdalwarp([file_warp1], fileout, cutline=demshape, cropToCutline=True,
+                 dstSRS=GetSpatialRef(filetpl), pixelsize=GetPixelSize(filetpl))
 
+        os.unlink(file_rect)
 
-        else:
-            wdata, geotransform, projection = GDAL2Numpy(filetpl, band=1, dtype=np.float32, load_nodata_as=np.nan,
-                                                         verbose=False)
-            wdata.fill(np.nan)
-            Numpy2GTiff(wdata, geotransform, projection, fileout)
+    else:
+        wdata, geotransform, projection = GDAL2Numpy(filetpl, band=1, dtype=np.float32, load_nodata_as=np.nan,
+                                                     verbose=False)
+        wdata.fill(np.nan)
+        Numpy2GTiff(wdata, geotransform, projection, fileout)
 
-        tmp_out.close()
-        os.unlink(tmp_out.name)
+    os.unlink(file_warp1)
 
     return fileout if os.path.exists(fileout) else None
