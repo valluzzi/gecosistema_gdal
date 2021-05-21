@@ -51,22 +51,23 @@ def find_GDAL_DATA():
             break
     return justpath(pathnames[0]) if len(pathnames) else ""
 
-def gdalwarp(filelist, fileout, dstSRS="", cutline = "", cropToCutline=False, pixelsize=0):
+def gdalwarp(filelist, fileout, dstSRS="", cutline="", cropToCutline=False, pixelsize=(0, 0)):
     """
     gdalwarp
     """
+
     kwargs = {
         "format": "GTiff",
-        "outputType" : gdalconst.GDT_Float32,
-        "creationOptions":["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", "COMPRESS=LZW"],
-        "dstNodata":-9999,
-        "resampleAlg":gdalconst.GRIORA_Bilinear,
-        "multithread":True
+        "outputType": gdalconst.GDT_Float32,
+        "creationOptions": ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", "COMPRESS=LZW"],
+        "dstNodata": -9999,
+        "resampleAlg": gdalconst.GRIORA_Bilinear,
+        "multithread": False
     }
 
-    if pixelsize>0:
-        kwargs["xRes"] = pixelsize
-        kwargs["yRes"] = pixelsize
+    if pixelsize[0] > 0 and pixelsize[1] > 0:
+        kwargs["xRes"] = pixelsize[0]
+        kwargs["yRes"] = pixelsize[1]
 
     if dstSRS:
         kwargs["dstSRS"] = dstSRS
@@ -76,19 +77,23 @@ def gdalwarp(filelist, fileout, dstSRS="", cutline = "", cropToCutline=False, pi
         kwargs["cutlineDSName"] = cutline
         kwargs["cutlineLayer"] = juststem(cutline)
 
-    #gdal.Warp depends on PROJ_LIB and GDAL_DATA --------------------------
-    #os.environ["PROJ_LIB"] = ..../site-packages/osgeo/data/proj
-    #patch PROJ_LIB - save it before and restore after gdalwarp
-    PROJ_LIB  = os.environ["PROJ_LIB"]  if "PROJ_LIB" in os.environ else ""
+    # gdal.Warp depends on PROJ_LIB and GDAL_DATA --------------------------
+    # os.environ["PROJ_LIB"] = ..../site-packages/osgeo/data/proj
+    # patch PROJ_LIB - save it before and restore after gdalwarp
+    PROJ_LIB = os.environ["PROJ_LIB"] if "PROJ_LIB" in os.environ else ""
     GDAL_DATA = os.environ["GDAL_DATA"] if "GDAL_DATA" in os.environ else ""
-    #print(find_PROJ_LIB())
+    # print(find_PROJ_LIB())
     os.environ["PROJ_LIB"] = find_PROJ_LIB()
-    #print(find_GDAL_DATA())
+    # print(find_GDAL_DATA())
     os.environ["GDAL_DATA"] = find_GDAL_DATA()
+
+    # cache = gdal.GetCacheMax()
+    # gdal.SetCacheMax(14000)
+    # print(gdal.GetCacheMax())
     gdal.Warp(fileout, filelist, **kwargs)
     if PROJ_LIB:
         os.environ["PROJ_LIB"] = PROJ_LIB
     if GDAL_DATA:
         os.environ["GDAL_DATA"] = GDAL_DATA
-    #----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
     return fileout

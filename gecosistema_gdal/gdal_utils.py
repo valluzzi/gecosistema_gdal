@@ -80,26 +80,6 @@ def GetValueAt(X,Y,filename):
     #raise ValueError("Unexpected (Lon,Lat) values.")
     return None
 
-def GetPixelSize(filename):
-    """
-    GetPixelSize
-    """
-    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
-    if dataset:
-        gt = dataset.GetGeoTransform()
-        _, px, _, _, _, py = gt
-        dataset = None
-        return (px,abs(py))
-    return (0,0)
-
-def SamePixelSize(filename1, filename2):
-    """
-    SamePixelSize
-    """
-    px1, py1 = GetPixelSize(filename1)
-    px2, py2 = GetPixelSize(filename2)
-    return px1 == px2 and py1 == py2
-
 def GetRasterShape(filename):
     """
     GetRasterShape
@@ -115,7 +95,7 @@ def GetExtent(filename):
     """
     GetExtent
     """
-    ext = justext(filename).lower()
+    ext = justext(filename).lower() if isinstance(filename, str) else ""
     if ext =="tif":
         dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
         if dataset:
@@ -143,14 +123,7 @@ def GetExtent(filename):
 
     return (0,0,0,0)
 
-def SameExtent(filename1, filename2):
-    """
-    SameExtent
-    """
-    minx1, miny1, maxx1, maxy1 = GetExtent(filename1)
-    minx2, miny2, maxx2, maxy2 = GetExtent(filename2)
-    return minx1 == minx2 and miny1 == miny2 and maxx1 == maxx2 and maxy1 == maxy2
-
+'''
 def GetSpatialReference(filename):
     """
     GetSpatialReference
@@ -159,6 +132,7 @@ def GetSpatialReference(filename):
     if dataset:
        return dataset.GetProjection()
     return None
+'''
 
 def GetSpatialRef(filename):
     """
@@ -192,16 +166,6 @@ def GetSpatialRef(filename):
     else:
         srs = osr.SpatialReference()
     return srs
-
-def SameSpatialRef(filename1, filename2):
-    """
-    SameSpatialRef
-    """
-    srs1 = GetSpatialRef(filename1)
-    srs2 = GetSpatialRef(filename2)
-    if srs1 and srs2:
-        return srs1.IsSame(srs2)
-    return None
 
 def GetNoData(filename):
     """
@@ -563,76 +527,8 @@ def gdal_contour(filesrc, filedest=None, step=0.0, verbose=False):
 
     return False
 
-def Rectangle( minx, miny, maxx, maxy ):
-    """
-    Rectangle
-    """
-    ring = ogr.Geometry(ogr.wkbLinearRing)
-    ring.AddPoint(minx, miny)
-    ring.AddPoint(maxx, miny)
-    ring.AddPoint(maxx, maxy)
-    ring.AddPoint(minx, maxy)
-    ring.AddPoint(minx, miny)
-    # Create polygon
-    poly = ogr.Geometry(ogr.wkbPolygon)
-    poly.AddGeometry(ring)
-    return poly
-
-def CreateRectangleShape( minx, miny, maxx, maxy, srs,fileshp="tempxy...."):
-    """
-    CreateRectangleShape
-    """
-    fileshp = fileshp if fileshp else "./tempdir/rect.shp"
-    # Write rest to Shapefile
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    if os.path.exists(fileshp):
-        driver.DeleteDataSource(fileshp)
-    ds = driver.CreateDataSource(fileshp)
-    layer = ds.CreateLayer(fileshp, srs, geom_type=ogr.wkbPolygon)
-    featureDefn = layer.GetLayerDefn()
-    feature = ogr.Feature(featureDefn)
-    rect = Rectangle(minx, miny, maxx, maxy)
-    feature.SetGeometry(rect)
-    layer.CreateFeature(feature)
-    feature, layer, ds = None, None, None
-    return fileshp
-
-def RasterLike(filetif, filetpl, fileout=None):
-    """
-    RasterLike: adatta un raster al raster template ( dem ) ricampionando, riproiettando estendendo/clippando il file raster se necessario.
-    """
-    if SameSpatialRef(filetif, filetpl) and SamePixelSize(filetif, filetpl) and SameExtent(filetif, filetpl):
-        fileout = filetif
-        return fileout
-
-    gdalwarp([filetif], fileout, dstSRS=GetSpatialRef(filetpl), pixelsize=GetPixelSize(filetpl)[0])
-
-    tif_minx, tif_miny, tif_maxx, tif_maxy = GetExtent(filetif)
-    tpl_minx, tpl_miny, tpl_maxx, tpl_maxy = GetExtent(filetpl)
-
-    # create tif and template rectangles
-    # to detect intersections
-    tif_rectangle = Rectangle(tif_minx, tif_miny, tif_maxx, tif_maxy)
-    tpl_rectangle = Rectangle(tpl_minx, tpl_miny, tpl_maxx, tpl_maxy)
-
-    if tif_rectangle.Intersects(tpl_rectangle):
-        with tempfile.NamedTemporaryFile(suffix='.shp') as fp:
-            spatialRefSys = GetSpatialRef(filetpl)
-            demshape = CreateRectangleShape(tpl_minx, tpl_miny, tpl_maxx, tpl_maxy,
-                                            srs = spatialRefSys,
-                                            fileshp=fp.name)
-            gdalwarp([filetif], fileout, cutline=demshape, cropToCutline=True)
 
 
-    else:
-        wdata, geotransform, projection = GDAL2Numpy(filetpl, dtype=np.float32, load_nodata_as=np.nan)
-        wdata.fill(np.nan)
-        Numpy2GTiff(wdata, geotransform, projection, fileout)
-
-    #if SameSpatialRef(fileout, filetpl) and SamePixelSize(fileout, filetpl) and SameExtent(fileout, filetpl):
-    #    print('RasterLike successful')
-
-    return fileout if os.path.exists(fileout) else None
 
 
 

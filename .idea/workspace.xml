@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="04a9cc17-7ce3-4afb-aff0-47a253bd4852" name="Default Changelist" comment="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed">
+      <change afterPath="$PROJECT_DIR$/gecosistema_gdal/raster_like.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdalwarp.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdalwarp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,16 +105,5 @@
     <MESSAGE value="commit #1 del 19/08/2019" />
     <MESSAGE value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
     <option name="LAST_COMMIT_MESSAGE" value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="363" y="105" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1607163334275">
-      <screen x="0" y="0" width="1366" height="738" />
-    </state>
-    <state x="363" y="105" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1366.738/-232.-1080.1920.1080@0.0.1366.738" timestamp="1607163334275" />
-    <state x="363" y="105" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1366.738/-621.-1080.2560.1080@0.0.1366.738" timestamp="1606983142727" />
-    <state x="275" y="102" key="Vcs.Push.Dialog.v2" timestamp="1600700112550">
-      <screen x="0" y="0" width="1366" height="738" />
-    </state>
-    <state x="275" y="102" key="Vcs.Push.Dialog.v2/0.0.1366.738/-232.-1080.1920.1080@0.0.1366.738" timestamp="1600700112550" />
   </component>
 </project>

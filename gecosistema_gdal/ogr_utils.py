@@ -522,7 +522,7 @@ def WriteRecords(fileshp, records, src_epsg=-1):
 
             # create the feature
             mode= "update"
-            feature = layer.GetFeature(fid)
+            feature = layer.GetFeature(fid) if fid >=0 else None
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
