@@ -169,8 +169,7 @@ def RasterLike(filetif, filetpl, fileout=None, verbose=False):
         os.unlink(file_rect)
 
     else:
-        wdata, geotransform, projection = GDAL2Numpy(filetpl, band=1, dtype=np.float32, load_nodata_as=np.nan,
-                                                     verbose=False)
+        wdata, geotransform, projection = GDAL2Numpy(filetpl, band=1, dtype=np.float32, load_nodata_as=np.nan)
         wdata.fill(np.nan)
         Numpy2GTiff(wdata, geotransform, projection, fileout)
 
