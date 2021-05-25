@@ -87,7 +87,7 @@ def UpdateSpatialIndex(fileshp, features):
         return index
 
 
-def ExportToJson(feature, fieldnames=[], coord_precision=2):
+def ExportToJson(feature, fieldnames=[], coord_precision=2, latlon=False):
     """
     ExportToJson
     """
@@ -97,20 +97,42 @@ def ExportToJson(feature, fieldnames=[], coord_precision=2):
 
     if geometry_type =="Point":
         x,y = geom.GetPoints()[0]
-        coords = [round(x,coord_precision), round(y,coord_precision)]
+        if latlon:
+            coords = [round(y,coord_precision), round(x,coord_precision)]
+        else:
+            coords = [round(x,coord_precision), round(y,coord_precision)]
+
     elif geometry_type =="Linestring":
+
         geometry_type = "LineString"
         coords = [ list(p) for p in geom.GetPoints() ]
-        coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
-    elif geometry_type == "Multilinestring":
+        if latlon:
+            coords = [ [round(y,coord_precision), round(x,coord_precision)]  for x,y in coords ]
+        else:
+            coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
+
+    elif geometry_type =="Multilinestring":
+
         geometry_type = "MultiLineString"
-        segments = [[list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0)]
-        coords = [[[round(x, coord_precision), round(y, coord_precision)] for x, y in segment] for segment in segments]
+        segments = [ [list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0) ]
+        if latlon:
+            coords = [[[round(y,coord_precision), round(x,coord_precision)]  for x,y in segment ] for segment in segments]
+        else:
+            coords = [[[round(x,coord_precision), round(y,coord_precision)]  for x,y in segment ] for segment in segments]
+
     elif geometry_type =="Polygon":
-        coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+        if latlon:
+            coords = [[[round(y,coord_precision), round(x,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+        else:
+            coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+
     elif geometry_type =="Multipolygon":
         geometry_type = "MultiPolygon"
-        coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+        if latlon:
+            coords = [[[[round(y,coord_precision), round(x,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+        else:
+            coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+
     else:
         print("TODO:",geometry_type)
 
