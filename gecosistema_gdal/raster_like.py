@@ -94,11 +94,11 @@ def Rectangle(minx, miny, maxx, maxy):
     Rectangle
     """
     ring = ogr.Geometry(ogr.wkbLinearRing)
-    ring.AddPoint(minx, miny)
-    ring.AddPoint(maxx, miny)
-    ring.AddPoint(maxx, maxy)
-    ring.AddPoint(minx, maxy)
-    ring.AddPoint(minx, miny)
+    ring.AddPoint_2D(minx, miny)
+    ring.AddPoint_2D(maxx, miny)
+    ring.AddPoint_2D(maxx, maxy)
+    ring.AddPoint_2D(minx, maxy)
+    ring.AddPoint_2D(minx, miny)
     # Create polygon
     poly = ogr.Geometry(ogr.wkbPolygon)
     poly.AddGeometry(ring)
