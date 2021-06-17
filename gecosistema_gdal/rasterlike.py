@@ -440,7 +440,7 @@ def ShapeExtentFrom(filetif, fileshp=""):
     feature, layer, ds = None, None, None
     return fileshp
 
-def RasterLike(filetif, filetpl, fileout=None, verbose=True):
+def RasterLike(filetif, filetpl, fileout=None, verbose=False):
     """
     RasterLike: adatta un raster al raster template ( dem ) ricampionando, riproiettando estendendo/clippando il file raster se necessario.
     """
@@ -463,7 +463,7 @@ def RasterLike(filetif, filetpl, fileout=None, verbose=True):
         file_warp1 = gdalwarp(filetif, cutline=file_rect, cropToCutline=True, dstSRS=GetSpatialRef(filetpl))
         #2) Resampling and refine the extent
         printf("2) Resampling...",verbose)
-        fileout = gdalwarp(filetif, fileout, pixelsize=GetPixelSize(filetpl), cutline=file_rect, cropToCutline=True)
+        fileout = gdalwarp(file_warp1, fileout, pixelsize=GetPixelSize(filetpl), cutline=file_rect, cropToCutline=True)
         os.unlink(file_warp1)
         os.unlink(file_rect)
         done("gdalwarp",t0,verbose)

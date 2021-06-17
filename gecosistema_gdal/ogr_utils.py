@@ -30,7 +30,7 @@ from osgeo import ogr,osr
 from osgeo import gdal,gdalconst
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
-from .gdal_utils import GetSpatialRef
+from .gdal_utils import GetSpatialRef, GetExtent
 
 
 def CreateSpatialIndex(fileshp):
@@ -648,6 +648,52 @@ def DeleteRecordsByAttribute(fileshp, attrname, values):
                         break
     datasource = None
 
+def RasterizeAs(file_shp, px, py=0, epsg=None, dtype=np.float32, nodata=0, file_tif="", burn_fieldname=""):
+    """
+    RasterizeAs
+    """
+    GDT = {
+        'uint8': gdal.GDT_Byte,
+        'uint16': gdal.GDT_UInt16,
+        'uint32': gdal.GDT_UInt32,
+        'int16': gdal.GDT_Int16,
+        'int32': gdal.GDT_Int32,
+        'float32': gdal.GDT_Float32,
+        'float64': gdal.GDT_Float64
+    }
+    dtype = str(np.dtype(dtype)).lower()
+    fmt = GDT[dtype] if dtype in GDT else gdal.GDT_Float64
+    file_tif = file_tif if file_tif else forceext(file_shp, "tif")
+    vector = ogr.OpenShared(file_shp)
+    if px and vector:
+        srs = GetSpatialRef(epsg) if epsg else GetSpatialRef(file_shp)
+        minx, miny, maxx, maxy = GetExtent(file_shp)
+        py = py if py else px
+        m, n = abs(int(math.ceil(maxy-miny)/py)),abs(int(math.ceil(maxx-minx)/px))
+
+        # Open the data source and read in the extent
+        layer = vector.GetLayer()
+        # Create the destination data source
+        CO = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
+        target_ds = gdal.GetDriverByName('GTiff').Create(file_tif, n, m, 1, fmt, CO)
+        gt = (minx, px, 0, maxy, 0, -abs(py))
+        target_ds.SetGeoTransform(gt)
+        prj = srs.ExportToWkt()
+        target_ds.SetProjection(prj)
+        band = target_ds.GetRasterBand(1)
+        band.SetNoDataValue(nodata)
+
+        # Rasterize
+        # gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[0])
+        if burn_fieldname:
+            gdal.RasterizeLayer(target_ds, [1], layer, options=["ATTRIBUTE=%s" % (burn_fieldname.upper())])
+        else:
+            gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
+
+        dataset, vector, target_ds = None, None, None
+        return file_tif if os.path.isfile(file_tif) else None
+    return None
+
 def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
     """
     RasterizeLike
@@ -663,9 +709,7 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
         bandtype = gdal.GetDataTypeName(band.DataType)
         _, px, _, _, _, py = gt
 
-
         # Open the data source and read in the extent
-
         layer = vector.GetLayer()
 
         # Create the destination data source
@@ -685,7 +729,7 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
         else:
             gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
 
-        dataset, verctor, target_ds = None, None, None
+        dataset, vector, target_ds = None, None, None
 
 
 

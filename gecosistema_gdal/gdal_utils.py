@@ -110,7 +110,6 @@ def GetExtent(filename):
             return (xmin, ymin, xmax, ymax )
 
     elif ext in ("shp","dbf"):
-
         filename = forceext(filename,"shp")
         driver = ogr.GetDriverByName("ESRI Shapefile")
         dataset = driver.Open(filename, 0)
@@ -121,18 +120,18 @@ def GetExtent(filename):
             xmin, xmax, ymin, ymax = extent
             return (xmin, ymin, xmax, ymax )
 
+    elif ext in ("json",):
+        driver = ogr.GetDriverByName("GeoJSON")
+        dataset = driver.Open(filename, 0)
+        if dataset:
+            layer = dataset.GetLayer()
+            extent = layer.GetExtent()
+            dataset = None
+            xmin, xmax, ymin, ymax = extent
+            return (xmin, ymin, xmax, ymax)
+
     return (0,0,0,0)
 
-'''
-def GetSpatialReference(filename):
-    """
-    GetSpatialReference
-    """
-    dataset = gdal.Open(filename, gdalconst.GA_ReadOnly)
-    if dataset:
-       return dataset.GetProjection()
-    return None
-'''
 
 def GetSpatialRef(filename):
     """
@@ -150,7 +149,7 @@ def GetSpatialRef(filename):
         srs = osr.SpatialReference()
         srs.ImportFromEPSG(code)
 
-    elif isinstance(filename, str) and os.path.isfile(filename) and filename.lower().endswith(".shp"):
+    elif isinstance(filename, str) and os.path.isfile(filename) and justext(filename).lower() in ("shp","json"):
         ds = ogr.OpenShared(filename)
         if ds:
             srs = ds.GetLayer().GetSpatialRef()
