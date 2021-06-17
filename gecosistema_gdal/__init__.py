@@ -22,11 +22,11 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
-__version__ = '0.0.167'
+__version__ = '0.0.168'
 
 from .ogr_utils import *
 from .gdal_utils import *
 from .gdal_numpy import *
 from .gdal_sparse import *
-from .raster_like import *
+from .rasterlike import *
 from .taudem import *
