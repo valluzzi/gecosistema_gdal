@@ -22,10 +22,11 @@
 #
 # Created:     31/08/2018
 # -------------------------------------------------------------------------------
-__version__ = '0.0.161'
+__version__ = '0.0.172'
 
 from .ogr_utils import *
 from .gdal_utils import *
 from .gdal_numpy import *
 from .gdal_sparse import *
-from .taudem import *
+from .rasterlike import RasterLike, gdalwarp, GetPixelSize, Rectangle
+#from .taudem import *

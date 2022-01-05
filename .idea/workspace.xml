@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="04a9cc17-7ce3-4afb-aff0-47a253bd4852" name="Default Changelist" comment="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed">
-      <change beforePath="$PROJECT_DIR$/.idea/gecosistema_gdal.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gecosistema_gdal.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="b8268786-cc17-4e06-a951-a518c3356bcc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/gecosistema_gdal/rasterlike.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/gdalwarp.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/gdalwarp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/taudem.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/taudem.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +26,9 @@
     <option name="UPDATE_TYPE" value="MERGE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="46c55998-e2c9-4697-ad88-f412e6e36db3" />
+  </component>
   <component name="ProjectId" id="1aB2WZOITgd6Xe5ajI6b4B97NsY" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -32,10 +38,8 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../saferplaces_gdal" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../gecosistema_core" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -102,5 +106,16 @@
     <MESSAGE value="commit #1 del 19/08/2019" />
     <MESSAGE value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
     <option name="LAST_COMMIT_MESSAGE" value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/gecosistema_gdal/taudem.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

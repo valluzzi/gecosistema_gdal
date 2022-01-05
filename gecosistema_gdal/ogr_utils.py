@@ -30,7 +30,7 @@ from osgeo import ogr,osr
 from osgeo import gdal,gdalconst
 from gecosistema_core import *
 from gdal2numpy import GDAL2Numpy,Numpy2GTiff
-from .gdal_utils import GetSpatialRef
+from .gdal_utils import GetSpatialRef, GetExtent
 
 
 def CreateSpatialIndex(fileshp):
@@ -87,7 +87,7 @@ def UpdateSpatialIndex(fileshp, features):
         return index
 
 
-def ExportToJson(feature, fieldnames=[], coord_precision=2):
+def ExportToJson(feature, fieldnames=[], coord_precision=2, latlon=False):
     """
     ExportToJson
     """
@@ -97,20 +97,42 @@ def ExportToJson(feature, fieldnames=[], coord_precision=2):
 
     if geometry_type =="Point":
         x,y = geom.GetPoints()[0]
-        coords = [round(x,coord_precision), round(y,coord_precision)]
+        if latlon:
+            coords = [round(y,coord_precision), round(x,coord_precision)]
+        else:
+            coords = [round(x,coord_precision), round(y,coord_precision)]
+
     elif geometry_type =="Linestring":
+
         geometry_type = "LineString"
         coords = [ list(p) for p in geom.GetPoints() ]
-        coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
-    elif geometry_type == "Multilinestring":
+        if latlon:
+            coords = [ [round(y,coord_precision), round(x,coord_precision)]  for x,y in coords ]
+        else:
+            coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
+
+    elif geometry_type =="Multilinestring":
+
         geometry_type = "MultiLineString"
-        segments = [[list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0)]
-        coords = [[[round(x, coord_precision), round(y, coord_precision)] for x, y in segment] for segment in segments]
+        segments = [ [list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0) ]
+        if latlon:
+            coords = [[[round(y,coord_precision), round(x,coord_precision)]  for x,y in segment ] for segment in segments]
+        else:
+            coords = [[[round(x,coord_precision), round(y,coord_precision)]  for x,y in segment ] for segment in segments]
+
     elif geometry_type =="Polygon":
-        coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+        if latlon:
+            coords = [[[round(y,coord_precision), round(x,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+        else:
+            coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+
     elif geometry_type =="Multipolygon":
         geometry_type = "MultiPolygon"
-        coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+        if latlon:
+            coords = [[[[round(y,coord_precision), round(x,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+        else:
+            coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+
     else:
         print("TODO:",geometry_type)
 
@@ -522,7 +544,7 @@ def WriteRecords(fileshp, records, src_epsg=-1):
 
             # create the feature
             mode= "update"
-            feature = layer.GetFeature(fid)
+            feature = layer.GetFeature(fid) if fid >=0 else None
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
@@ -626,6 +648,52 @@ def DeleteRecordsByAttribute(fileshp, attrname, values):
                         break
     datasource = None
 
+def RasterizeAs(file_shp, px, py=0, epsg=None, dtype=np.float32, nodata=0, file_tif="", burn_fieldname=""):
+    """
+    RasterizeAs
+    """
+    GDT = {
+        'uint8': gdal.GDT_Byte,
+        'uint16': gdal.GDT_UInt16,
+        'uint32': gdal.GDT_UInt32,
+        'int16': gdal.GDT_Int16,
+        'int32': gdal.GDT_Int32,
+        'float32': gdal.GDT_Float32,
+        'float64': gdal.GDT_Float64
+    }
+    dtype = str(np.dtype(dtype)).lower()
+    fmt = GDT[dtype] if dtype in GDT else gdal.GDT_Float64
+    file_tif = file_tif if file_tif else forceext(file_shp, "tif")
+    vector = ogr.OpenShared(file_shp)
+    if px and vector:
+        srs = GetSpatialRef(epsg) if epsg else GetSpatialRef(file_shp)
+        minx, miny, maxx, maxy = GetExtent(file_shp)
+        py = py if py else px
+        m, n = abs(int(math.ceil(maxy-miny)/py)),abs(int(math.ceil(maxx-minx)/px))
+
+        # Open the data source and read in the extent
+        layer = vector.GetLayer()
+        # Create the destination data source
+        CO = ["BIGTIFF=YES", "TILED=YES", "BLOCKXSIZE=256", "BLOCKYSIZE=256", 'COMPRESS=LZW']
+        target_ds = gdal.GetDriverByName('GTiff').Create(file_tif, n, m, 1, fmt, CO)
+        gt = (minx, px, 0, maxy, 0, -abs(py))
+        target_ds.SetGeoTransform(gt)
+        prj = srs.ExportToWkt()
+        target_ds.SetProjection(prj)
+        band = target_ds.GetRasterBand(1)
+        band.SetNoDataValue(nodata)
+
+        # Rasterize
+        # gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[0])
+        if burn_fieldname:
+            gdal.RasterizeLayer(target_ds, [1], layer, options=["ATTRIBUTE=%s" % (burn_fieldname.upper())])
+        else:
+            gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
+
+        dataset, vector, target_ds = None, None, None
+        return file_tif if os.path.isfile(file_tif) else None
+    return None
+
 def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
     """
     RasterizeLike
@@ -641,9 +709,7 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
         bandtype = gdal.GetDataTypeName(band.DataType)
         _, px, _, _, _, py = gt
 
-
         # Open the data source and read in the extent
-
         layer = vector.GetLayer()
 
         # Create the destination data source
@@ -663,7 +729,7 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
         else:
             gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
 
-        dataset, verctor, target_ds = None, None, None
+        dataset, vector, target_ds = None, None, None
 
 
 

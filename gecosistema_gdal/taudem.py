@@ -22,6 +22,8 @@
 #
 # Created:     17/01/2019
 # -------------------------------------------------------------------------------
+'''
+
 import os,sys
 from .gdal_utils import *
 from .gdal_numpy import *
@@ -121,3 +123,5 @@ def AreaD8(pfile, ad8file="", nc=True, n=-1, skipIfExists=False, verbose=False):
 
     env = {"exe": "aread8", "pfile": pfile, "ad8file": ad8file, "nc": "-nc" if nc else "", "n": n}
     return mpiexec(command, env, n, precond=[pfile], postcond=[ad8file], skipIfExists=skipIfExists, verbose=verbose)
+
+'''
