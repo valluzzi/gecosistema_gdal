@@ -22,14 +22,13 @@
 #
 # Created:     28/12/2018
 # -------------------------------------------------------------------------------
-import os,sys
-import math,json
+import os, sys
+import math, json
 
 import rtree
-from osgeo import ogr,osr
-from osgeo import gdal,gdalconst
+from osgeo import ogr, osr
+from osgeo import gdal, gdalconst
 from gecosistema_core import *
-from gdal2numpy import GDAL2Numpy,Numpy2GTiff
 from .gdal_utils import GetSpatialRef, GetExtent
 
 
@@ -37,39 +36,41 @@ def CreateSpatialIndex(fileshp):
     """
     CreateSpatialIndex
     """
-    fileidx = forceext(fileshp,"idx")
+    fileidx = forceext(fileshp, "idx")
     dataset = ogr.OpenShared(fileshp)
     if dataset:
-        indexname = forceext(fileidx,"")
+        indexname = forceext(fileidx, "")
         if not os.path.isfile(fileidx):
             index = rtree.index.Index(indexname)
             layer = dataset.GetLayer(0)
             layer.ResetReading()
             for feature in layer:
                 if feature.GetGeometryRef():
-                    minx,miny,maxx,maxy = feature.GetGeometryRef().GetEnvelope()
-                    index.insert(feature.GetFID(), (minx,maxx,miny,maxy))
+                    minx, miny, maxx, maxy = feature.GetGeometryRef().GetEnvelope()
+                    index.insert(feature.GetFID(), (minx, maxx, miny, maxy))
         else:
             try:
                 index = rtree.index.Index(indexname)
             except Exception as ex:
-                print("CreateSpatialIndex:",ex)
-                index=None
+                print("CreateSpatialIndex:", ex)
+                index = None
         return index
     return None
+
 
 def GetSpatialIndex(fileshp):
     """
     GetSpatialIndex
     """
     index = None
-    if not os.path.isfile(forceext(fileshp,"idx")):
+    if not os.path.isfile(forceext(fileshp, "idx")):
         return None
     try:
         index = rtree.index.Index(forceext(fileshp, ""))
     except Exception as ex:
         print("CreateSpatialIndex:", ex)
     return index
+
 
 def UpdateSpatialIndex(fileshp, features):
     """
@@ -92,66 +93,75 @@ def ExportToJson(feature, fieldnames=[], coord_precision=2, latlon=False):
     ExportToJson
     """
     n = len(fieldnames)
-    geom = feature.GetGeometryRef() #.Simplify(20.0)
+    geom = feature.GetGeometryRef()  # .Simplify(20.0)
     geometry_type = geom.GetGeometryName().capitalize()
 
-    if geometry_type =="Point":
-        x,y = geom.GetPoints()[0]
+    if geometry_type == "Point":
+        x, y = geom.GetPoints()[0]
         if latlon:
-            coords = [round(y,coord_precision), round(x,coord_precision)]
+            coords = [round(y, coord_precision), round(x, coord_precision)]
         else:
-            coords = [round(x,coord_precision), round(y,coord_precision)]
+            coords = [round(x, coord_precision), round(y, coord_precision)]
 
-    elif geometry_type =="Linestring":
+    elif geometry_type == "Linestring":
 
         geometry_type = "LineString"
-        coords = [ list(p) for p in geom.GetPoints() ]
+        coords = [list(p) for p in geom.GetPoints()]
         if latlon:
-            coords = [ [round(y,coord_precision), round(x,coord_precision)]  for x,y in coords ]
+            coords = [[round(y, coord_precision), round(x, coord_precision)] for x, y in coords]
         else:
-            coords = [ [round(x,coord_precision), round(y,coord_precision)]  for x,y in coords ]
+            coords = [[round(x, coord_precision), round(y, coord_precision)] for x, y in coords]
 
-    elif geometry_type =="Multilinestring":
+    elif geometry_type == "Multilinestring":
 
         geometry_type = "MultiLineString"
-        segments = [ [list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0) ]
+        segments = [[list(p) for p in segment.GetPoints()] for segment in geom.GetGeometryRef(0)]
         if latlon:
-            coords = [[[round(y,coord_precision), round(x,coord_precision)]  for x,y in segment ] for segment in segments]
+            coords = [[[round(y, coord_precision), round(x, coord_precision)] for x, y in segment] for segment in
+                      segments]
         else:
-            coords = [[[round(x,coord_precision), round(y,coord_precision)]  for x,y in segment ] for segment in segments]
+            coords = [[[round(x, coord_precision), round(y, coord_precision)] for x, y in segment] for segment in
+                      segments]
 
-    elif geometry_type =="Polygon":
+    elif geometry_type == "Polygon":
         if latlon:
-            coords = [[[round(y,coord_precision), round(x,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+            coords = [[[round(y, coord_precision), round(x, coord_precision)] for x, y in ring.GetPoints()] for ring in
+                      geom if ring.GetPointCount()]
         else:
-            coords = [[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in geom if ring.GetPointCount()]
+            coords = [[[round(x, coord_precision), round(y, coord_precision)] for x, y in ring.GetPoints()] for ring in
+                      geom if ring.GetPointCount()]
 
-    elif geometry_type =="Multipolygon":
+    elif geometry_type == "Multipolygon":
         geometry_type = "MultiPolygon"
         if latlon:
-            coords = [[[[round(y,coord_precision), round(x,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+            coords = [
+                [[[round(y, coord_precision), round(x, coord_precision)] for x, y in ring.GetPoints()] for ring in poly
+                 if ring.GetPointCount()] for poly in geom]
         else:
-            coords = [[[[round(x,coord_precision), round(y,coord_precision)] for x,y in ring.GetPoints()] for ring in poly if ring.GetPointCount()] for poly in geom]
+            coords = [
+                [[[round(x, coord_precision), round(y, coord_precision)] for x, y in ring.GetPoints()] for ring in poly
+                 if ring.GetPointCount()] for poly in geom]
 
     else:
-        print("TODO:",geometry_type)
+        print("TODO:", geometry_type)
 
-    if len(coords)==0:
+    if len(coords) == 0:
         return False
 
-    props  = {}
+    props = {}
     for j in range(n):
-        props[fieldnames[j]]=feature.GetField(fieldnames[j])
+        props[fieldnames[j]] = feature.GetField(fieldnames[j])
 
     return {
         "id": feature.GetFID(),
         "type": "Feature",
         "geometry": {
-            "type":geometry_type,
+            "type": geometry_type,
             "coordinates": coords
         },
         "properties": props
     }
+
 
 """obsolete
 def GetSpatialRef(fileshp):
@@ -177,6 +187,7 @@ def GetSpatialRef(fileshp):
 
     return srs
 """
+
 
 def GetFeatures(fileshp):
     """
@@ -205,7 +216,7 @@ def GetFeatureByFid(fileshp, layername=0, fid=0):
     return feature
 
 
-def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0 ):
+def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0):
     """
     GetFeatureByAttr - get the first feature with attrname=attrvalue
     """
@@ -219,8 +230,8 @@ def GetFeatureBy(fileshp, layername=0, attrname="ogr_id", attrvalue=0 ):
             for feature in layer:
                 if feature.GetField(attrname) == attrvalue:
                     dataset = None
-                    #patch geometry that sometime is invalid
-                    #create a buffer of 0 meters
+                    # patch geometry that sometime is invalid
+                    # create a buffer of 0 meters
                     buff0m = feature.GetGeometryRef().Buffer(0)
                     feature.SetGeometry(buff0m)
                     return feature
@@ -247,13 +258,14 @@ def GetAttributeTableByFid(fileshp, layername=0, fid=0):
     dataset = None
     return res
 
-def queryByPoint( fileshp, x=0, y=0, point_srs=None, mode="single"):
+
+def queryByPoint(fileshp, x=0, y=0, point_srs=None, mode="single"):
     """
     queryByPoint
     """
     res = []
     point = ogr.Geometry(ogr.wkbPoint)
-    point.AddPoint(x,y)
+    point.AddPoint(x, y)
 
     dataset = ogr.OpenShared(fileshp)
     if dataset:
@@ -262,20 +274,21 @@ def queryByPoint( fileshp, x=0, y=0, point_srs=None, mode="single"):
         if point_srs:
             psrs = osr.SpatialReference()
             psrs.ImportFromEPSG(int(point_srs))
-            if  not psrs.IsSame(srs):
+            if not psrs.IsSame(srs):
                 transform = osr.CoordinateTransformation(psrs, srs)
                 point.Transform(transform)
 
         for feature in layer:
             geom = feature.GetGeometryRef()
-            if point.Intersects( geom ):
+            if point.Intersects(geom):
                 res.append(feature)
-                if mode.lower()=="single":
+                if mode.lower() == "single":
                     break
     dataset = None
     return res
 
-def queryByAttributes( fileshp, fieldname, fieldvalues, mode="multiple"):
+
+def queryByAttributes(fileshp, fieldname, fieldvalues, mode="multiple"):
     """
     queryByAttributes
     """
@@ -284,15 +297,16 @@ def queryByAttributes( fileshp, fieldname, fieldvalues, mode="multiple"):
     if dataset:
         layer = dataset.GetLayer(0)
         for feature in layer:
-            if feature.GetFieldIndex(fieldname)>=0:
+            if feature.GetFieldIndex(fieldname) >= 0:
                 if feature.GetField(fieldname) in listify(fieldvalues):
                     res.append(feature)
-                    if mode.lower()=="single":
+                    if mode.lower() == "single":
                         break
     dataset = None
     return res
 
-def queryByShape( fileshp, feature, feature_epsg=None, mode="single"):
+
+def queryByShape(fileshp, feature, feature_epsg=None, mode="single"):
     """
     queryByShape
     """
@@ -310,8 +324,8 @@ def queryByShape( fileshp, feature, feature_epsg=None, mode="single"):
         if feature_epsg:
             qsrs = osr.SpatialReference()
             qsrs.ImportFromEPSG(int(feature_epsg))
-            if  not qsrs.IsSame(srs):
-                #transform the query feature in layer srs
+            if not qsrs.IsSame(srs):
+                # transform the query feature in layer srs
                 transform = osr.CoordinateTransformation(qsrs, srs)
                 qshape.Transform(transform)
 
@@ -326,9 +340,9 @@ def queryByShape( fileshp, feature, feature_epsg=None, mode="single"):
         """
 
         # 2) Rtree index approach
-        fileidx = forceext(fileshp,".idx")
+        fileidx = forceext(fileshp, ".idx")
         if os.path.isfile(fileidx):
-            minx,miny,maxx,maxy = qshape.GetEnvelope()
+            minx, miny, maxx, maxy = qshape.GetEnvelope()
             for fid in list(index.intersection((minx, maxx, miny, maxy))):
                 feature = layer.GetFeature(fid)
                 if feature:
@@ -345,9 +359,9 @@ def queryByShape( fileshp, feature, feature_epsg=None, mode="single"):
                 if mode.lower() == "single":
                     break
 
-
     dataset = None
     return res
+
 
 def removeShape(filename):
     """
@@ -385,23 +399,24 @@ def SaveFeature(feature, fileshp=""):
     ds = None
     return fileshp
 
+
 def CreateShapefile(fileshp, crs=4326, schema={}):
     """
     CreateShapefile
 
     schema={"geometry":"LineString","properties":{"OBJECTID":"int","height":"float"}}
     """
-    DATATYPE={
-        "Point":ogr.wkbPoint,
-        "LineString":ogr.wkbLineString,
-        "Polygon":ogr.wkbPolygon,
-        "MultiPoint":ogr.wkbMultiPoint,
-        "MultiLineString":ogr.wkbMultiLineString,
-        "MultiPolygon":ogr.wkbMultiPolygon,
+    DATATYPE = {
+        "Point": ogr.wkbPoint,
+        "LineString": ogr.wkbLineString,
+        "Polygon": ogr.wkbPolygon,
+        "MultiPoint": ogr.wkbMultiPoint,
+        "MultiLineString": ogr.wkbMultiLineString,
+        "MultiPolygon": ogr.wkbMultiPolygon,
         "int": ogr.OFTInteger,
-        "float":ogr.OFTReal,
-        "str":ogr.OFTString,
-        "text":ogr.OFTString
+        "float": ogr.OFTReal,
+        "str": ogr.OFTString,
+        "text": ogr.OFTString
     }
 
     layername = juststem(fileshp)
@@ -415,17 +430,17 @@ def CreateShapefile(fileshp, crs=4326, schema={}):
     srs = GetSpatialRef(crs)
 
     # create the layer
-    #layer = data_source.CreateLayer(layername, srs, ogr.wkbPoint)
+    # layer = data_source.CreateLayer(layername, srs, ogr.wkbPoint)
     dtype = schema["geometry"] if "geometry" in schema else "Point"
     layer = data_source.CreateLayer(layername, srs, DATATYPE[dtype])
 
     properties = schema["properties"] if "properties" in schema else {}
     for name in properties:
-        dtype,dwidth = (properties[name]+":0").split(":")
-        p,w =  math.modf(float(dwidth))
-        p,w = int(p),int(w)
+        dtype, dwidth = (properties[name] + ":0").split(":")
+        p, w = math.modf(float(dwidth))
+        p, w = int(p), int(w)
         field_name = ogr.FieldDefn(name, DATATYPE[dtype])
-        p =255 if p==0 and dtype=="str" else p
+        p = 255 if p == 0 and dtype == "str" else p
         if w:
             field_name.SetWidth(w)
         if p:
@@ -433,6 +448,7 @@ def CreateShapefile(fileshp, crs=4326, schema={}):
         layer.CreateField(field_name)
     # Save and close the data source
     data_source = None
+
 
 def GetFieldNames(fileshp):
     """
@@ -447,11 +463,12 @@ def GetFieldNames(fileshp):
             res.append(defn.GetFieldDefn(j).GetName())
     return res
 
-def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None ):
+
+def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None):
     """
     AddField
     """
-    ds = ogr.Open(fileshp,1)
+    ds = ogr.Open(fileshp, 1)
     if ds:
         DATATYPE = {
             "Point": ogr.wkbPoint,
@@ -468,34 +485,34 @@ def AddField(fileshp, fieldname, fieldtype, fieldsize="12.4", fieldvalue=None ):
 
         layer = ds.GetLayer()
 
-        #collect fieldnames to check if presents--------------
+        # collect fieldnames to check if presents--------------
         fieldnames = []
         defn = layer.GetLayerDefn()
         for j in range(defn.GetFieldCount()):
             fieldnames.append(defn.GetFieldDefn(j).GetName().lower())
-        #-----------------------------------------------------
+        # -----------------------------------------------------
 
-        w, p  = (fieldsize+ ".0").split(".")[0:2]
+        w, p = (fieldsize + ".0").split(".")[0:2]
         p, w = int(p), int(w)
         fielddefn = ogr.FieldDefn(fieldname, DATATYPE[fieldtype])
-        w = 254 if w == 0 and fieldtype in ("str","text") else w
+        w = 254 if w == 0 and fieldtype in ("str", "text") else w
         if w:
             fielddefn.SetWidth(w)
         if p:
             fielddefn.SetPrecision(p)
-        if fieldvalue!=None:
+        if fieldvalue != None:
             fielddefn.SetDefault(fieldvalue)
         if not fieldname.lower() in fieldnames:
             layer.CreateField(fielddefn)
 
-        #update features to fdefault value
-        if fieldvalue!=None:
+        # update features to fdefault value
+        if fieldvalue != None:
             layer.ResetReading()
             for feature in layer:
                 feature.SetField(fieldname, fieldvalue)
                 layer.SetFeature(feature)
 
-        layer, ds = None,None
+        layer, ds = None, None
 
 
 def GetFeatureByAttribute(layer, attrname="OBJECTID", attrvalue=0):
@@ -522,19 +539,19 @@ def WriteRecords(fileshp, records, src_epsg=-1):
     WriteRecord
     """
     mode = "insert"
-    datasource = ogr.Open(fileshp,1)
+    datasource = ogr.Open(fileshp, 1)
     if datasource:
         layer = datasource.GetLayer()
-        dsr   = layer.GetSpatialRef()
-        srs   = GetSpatialRef(src_epsg)
+        dsr = layer.GetSpatialRef()
+        srs = GetSpatialRef(src_epsg)
 
         layerDefinition = layer.GetLayerDefn()
         fieldnames = [layerDefinition.GetFieldDefn(j).GetName() for j in range(layerDefinition.GetFieldCount())]
 
         for record in records:
             properties = record["properties"] if "properties" in record else {}
-            #fid = int(properties["FID"]) if "FID" in properties else -1
-            #Case wms (gml)
+            # fid = int(properties["FID"]) if "FID" in properties else -1
+            # Case wms (gml)
             if "id" in record and isstring(record["id"]) and "." in record["id"]:
                 fid = int(record["id"].split(".")[1])
             elif "id" in record:
@@ -543,8 +560,8 @@ def WriteRecords(fileshp, records, src_epsg=-1):
                 fid = -1
 
             # create the feature
-            mode= "update"
-            feature = layer.GetFeature(fid) if fid >=0 else None
+            mode = "update"
+            feature = layer.GetFeature(fid) if fid >= 0 else None
             if not feature:
                 mode = "insert"
                 feature = ogr.Feature(layerDefinition)
@@ -554,14 +571,14 @@ def WriteRecords(fileshp, records, src_epsg=-1):
                 for name in properties:
                     if not name in ("boundedBy",):
                         value = properties[name]
-                        #print("SetField(%s,%s)"%(name,value))
+                        # print("SetField(%s,%s)"%(name,value))
                         feature.SetField(name, value)
 
             # create the WKT for the feature using Python string formatting
             if "geometry" in record:
                 geojson = json.dumps(record["geometry"])
                 geom = ogr.CreateGeometryFromJson(geojson)
-                #srs  = geom.GetSpatialReference() #usually dont work or noinfo
+                # srs  = geom.GetSpatialReference() #usually dont work or noinfo
 
                 if srs and not dsr.IsSame(srs):
                     transform = osr.CoordinateTransformation(srs, dsr)
@@ -569,11 +586,10 @@ def WriteRecords(fileshp, records, src_epsg=-1):
 
                 feature.SetGeometry(geom)
 
-
-            if mode=="insert":
+            if mode == "insert":
                 layer.CreateFeature(feature)
                 fid = feature.GetFID()
-                for fieldname in ("FID","OBJECTID",):
+                for fieldname in ("FID", "OBJECTID",):
                     if fieldname in fieldnames:
                         feature.SetField(fieldname, fid)
                 layer.SetFeature(feature)
@@ -588,6 +604,7 @@ def WriteRecords(fileshp, records, src_epsg=-1):
 
     # Save and close the data source
     datasource = None
+
 
 def DeleteRecords(fileshp, fids=None):
     """
@@ -604,6 +621,7 @@ def DeleteRecords(fileshp, fids=None):
                 layer.DeleteFeature(feature.GetFID())
     datasource = None
 
+
 def UpdateRecordsByAttribute(fileshp, attrnames, values):
     """
     UpdateRecordsByAttribute(s)
@@ -613,18 +631,18 @@ def UpdateRecordsByAttribute(fileshp, attrnames, values):
         layer = datasource.GetLayer()
         layerDefinition = layer.GetLayerDefn()
         fieldnames = [layerDefinition.GetFieldDefn(j).GetName() for j in range(layerDefinition.GetFieldCount())]
-        attrnames  = listify(attrnames)
-        values     = listify(values)
-        n = min(len(attrnames),len(values))
+        attrnames = listify(attrnames)
+        values = listify(values)
+        n = min(len(attrnames), len(values))
         for feature in layer:
             something_has_changed = False
             for j in range(n):
                 attrname = attrnames[j]
                 if attrname in fieldnames:
                     value = values[j]
-                    if isinstance(value,(str,)) and value in fieldnames:
+                    if isinstance(value, (str,)) and value in fieldnames:
                         value = feature.GetField(value)
-                    feature.SetField(attrname,value)
+                    feature.SetField(attrname, value)
                     something_has_changed = True
             if something_has_changed:
                 layer.SetFeature(feature)
@@ -648,6 +666,77 @@ def DeleteRecordsByAttribute(fileshp, attrname, values):
                         break
     datasource = None
 
+
+def joinOn(fileA, fileB, key="fid", type="left", fileout=""):
+    """
+    InnerJoinOn
+    """
+    driver = ogr.GetDriverByName('ESRI Shapefile')
+    dsA = ogr.OpenShared(fileA)
+    dsB = ogr.OpenShared(fileB)
+
+    if dsA and dsB:
+        fileout = fileout if fileout else forceext(fileA, f"{type}_join.shp")
+        layerA = dsA.GetLayer()
+        layerB = dsB.GetLayer()
+
+        if key and key.lower() != "fid":
+            layernameB = layerB.GetName()
+            if os.path.isfile(forceext(fileB, "idm")) or os.path.isfile(forceext(fileB, "ind")):
+                dsB.ExecuteSQL(f"""DROP INDEX ON "{layernameB}" USING "{key}" """)
+            dsB.ExecuteSQL(f"""CREATE INDEX ON "{layernameB}" USING "{key}" """)
+
+        dsC = driver.CreateDataSource(fileout)
+
+        if os.path.isfile(fileout):
+            driver.DeleteDataSource(fileout)
+        layerC = dsC.CreateLayer(juststem(fileout),
+                                 srs=layerA.GetSpatialRef(),
+                                 geom_type=layerA.GetLayerDefn().GetGeomType())
+
+        layerDefinitionA = layerA.GetLayerDefn()
+        NA = layerDefinitionA.GetFieldCount()
+        fieldnamesA = [layerDefinitionA.GetFieldDefn(j).GetName() for j in range(NA)]
+        fieldDefnA = [layerDefinitionA.GetFieldDefn(j) for j in range(NA)]
+
+        [layerC.CreateField(fieldDefnA[j]) for j in range(NA)]
+
+        layerDefinitionB = layerB.GetLayerDefn()
+        NB = layerDefinitionB.GetFieldCount()
+        fieldnamesB = [layerDefinitionB.GetFieldDefn(j).GetName() for j in range(NB)]
+        fieldDefnB = [layerDefinitionB.GetFieldDefn(j) for j in range(NB)]
+
+        [layerC.CreateField(fieldDefnB[j]) for j in range(NB) if fieldDefnB[j].GetName() not in fieldnamesA]
+
+        for featureA in layerA:
+            fid = featureA.GetField(key) if key and key.lower() != "fid" else featureA.GetFID()
+            featureC = ogr.Feature(layerC.GetLayerDefn())
+            featureC.SetGeometry(featureA.GetGeometryRef())
+
+            if key and key.lower() != "fid":
+                layerB.ResetReading()
+                layerB.SetAttributeFilter(f"\"{key}\"='{fid}'")
+                featureB = layerB.GetNextFeature()
+            else:
+                featureB = layerB.GetFeature(fid)
+
+            for j in range(NA):
+                fieldname = layerDefinitionA.GetFieldDefn(j).GetName()
+                featureC.SetField(fieldname, featureA.GetField(fieldname))
+            if featureB:
+                for j in range(NB):
+                    fieldname = layerDefinitionB.GetFieldDefn(j).GetName()
+                    if fieldname not in fieldnamesA:
+                        featureC.SetField(fieldname, featureB.GetField(fieldname))
+
+            if (type == "inner" and featureB) or type == "left":
+                layerC.CreateFeature(featureC)
+
+        if os.path.isfile(forceext(fileB, "idm")) or os.path.isfile(forceext(fileB, "ind")):
+            dsB.ExecuteSQL(f"""DROP INDEX ON "{layernameB}" USING "{key}" """)
+        dsA, dsB, dsC = None, None, None
+
+
 def RasterizeAs(file_shp, px, py=0, epsg=None, dtype=np.float32, nodata=0, file_tif="", burn_fieldname=""):
     """
     RasterizeAs
@@ -669,7 +758,7 @@ def RasterizeAs(file_shp, px, py=0, epsg=None, dtype=np.float32, nodata=0, file_
         srs = GetSpatialRef(epsg) if epsg else GetSpatialRef(file_shp)
         minx, miny, maxx, maxy = GetExtent(file_shp)
         py = py if py else px
-        m, n = abs(int(math.ceil(maxy-miny)/py)),abs(int(math.ceil(maxx-minx)/px))
+        m, n = abs(int(math.ceil(maxy - miny) / py)), abs(int(math.ceil(maxx - minx) / px))
 
         # Open the data source and read in the extent
         layer = vector.GetLayer()
@@ -694,17 +783,18 @@ def RasterizeAs(file_shp, px, py=0, epsg=None, dtype=np.float32, nodata=0, file_
         return file_tif if os.path.isfile(file_tif) else None
     return None
 
+
 def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
     """
     RasterizeLike
     """
-    file_tif = file_tif if file_tif else forceext(file_shp,"tif")
+    file_tif = file_tif if file_tif else forceext(file_shp, "tif")
     dataset = gdal.Open(file_dem, gdalconst.GA_ReadOnly)
-    vector  = ogr.OpenShared(file_shp)
+    vector = ogr.OpenShared(file_shp)
     if dataset and vector:
         band = dataset.GetRasterBand(1)
-        m,n = dataset.RasterYSize,dataset.RasterXSize
-        gt,prj = dataset.GetGeoTransform(),dataset.GetProjection()
+        m, n = dataset.RasterYSize, dataset.RasterXSize
+        gt, prj = dataset.GetGeoTransform(), dataset.GetProjection()
         nodata = band.GetNoDataValue()
         bandtype = gdal.GetDataTypeName(band.DataType)
         _, px, _, _, _, py = gt
@@ -730,11 +820,3 @@ def RasterizeLike(file_shp, file_dem, file_tif="", burn_fieldname=""):
             gdal.RasterizeLayer(target_ds, [1], layer, burn_values=[1])
 
         dataset, vector, target_ds = None, None, None
-
-
-
-
-
-
-
-
