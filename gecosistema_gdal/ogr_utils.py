@@ -22,70 +22,10 @@
 #
 # Created:     28/12/2018
 # -------------------------------------------------------------------------------
-import os, sys
-import math, json
-
-import rtree
 from osgeo import ogr, osr
 from osgeo import gdal, gdalconst
 from gecosistema_core import *
 from .gdal_utils import GetSpatialRef, GetExtent
-
-
-def CreateSpatialIndex(fileshp):
-    """
-    CreateSpatialIndex
-    """
-    fileidx = forceext(fileshp, "idx")
-    dataset = ogr.OpenShared(fileshp)
-    if dataset:
-        indexname = forceext(fileidx, "")
-        if not os.path.isfile(fileidx):
-            index = rtree.index.Index(indexname)
-            layer = dataset.GetLayer(0)
-            layer.ResetReading()
-            for feature in layer:
-                if feature.GetGeometryRef():
-                    minx, miny, maxx, maxy = feature.GetGeometryRef().GetEnvelope()
-                    index.insert(feature.GetFID(), (minx, maxx, miny, maxy))
-        else:
-            try:
-                index = rtree.index.Index(indexname)
-            except Exception as ex:
-                print("CreateSpatialIndex:", ex)
-                index = None
-        return index
-    return None
-
-
-def GetSpatialIndex(fileshp):
-    """
-    GetSpatialIndex
-    """
-    index = None
-    if not os.path.isfile(forceext(fileshp, "idx")):
-        return None
-    try:
-        index = rtree.index.Index(forceext(fileshp, ""))
-    except Exception as ex:
-        print("CreateSpatialIndex:", ex)
-    return index
-
-
-def UpdateSpatialIndex(fileshp, features):
-    """
-    UpdateSpatialIndex
-    """
-    index = None
-    if os.path.isfile(forceext(fileshp, "idx")):
-        try:
-            index = rtree.index.Index(forceext(fileshp, ""))
-            for feature in listify(features):
-                minx, miny, maxx, maxy = feature.GetGeometryRef().GetEnvelope()
-                index.insert(feature.GetFID(), (minx, maxx, miny, maxy))
-        except Exception as ex:
-            print("UpdateSpatialIndex:", ex)
-        return index
 
 
 def ExportToJson(feature, fieldnames=[], coord_precision=2, latlon=False):
@@ -338,26 +278,14 @@ def queryByShape(fileshp, feature, feature_epsg=None, mode="single"):
                 if mode.lower()=="single":
                     break
         """
-
-        # 2) Rtree index approach
-        fileidx = forceext(fileshp, ".idx")
-        if os.path.isfile(fileidx):
-            minx, miny, maxx, maxy = qshape.GetEnvelope()
-            for fid in list(index.intersection((minx, maxx, miny, maxy))):
-                feature = layer.GetFeature(fid)
-                if feature:
-                    res.append(feature)
-                    if mode.lower() == "single":
-                        break
-        else:
-            # 3) Spatial filter approach
-            geom = feature.GetGeometryRef()
-            layer.SetSpatialFilter(qshape)
-            layer.ResetReading()
-            for feature in layer:
-                res.append(feature)
-                if mode.lower() == "single":
-                    break
+        # 3) Spatial filter approach
+        geom = feature.GetGeometryRef()
+        layer.SetSpatialFilter(qshape)
+        layer.ResetReading()
+        for feature in layer:
+            res.append(feature)
+            if mode.lower() == "single":
+                break
 
     dataset = None
     return res
@@ -593,13 +521,8 @@ def WriteRecords(fileshp, records, src_epsg=-1):
                     if fieldname in fieldnames:
                         feature.SetField(fieldname, fid)
                 layer.SetFeature(feature)
-                # update the spatial index
-                UpdateSpatialIndex(fileshp, feature)
-
             else:
                 layer.SetFeature(feature)
-                # update the spatial index
-                UpdateSpatialIndex(fileshp, feature)
             feature = None
 
     # Save and close the data source

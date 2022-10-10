@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b8268786-cc17-4e06-a951-a518c3356bcc" name="Changes" comment="some fix, taudem deprecated">
+    <list default="true" id="b8268786-cc17-4e06-a951-a518c3356bcc" name="Changes" comment="joinOn">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gecosistema_gdal/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +26,19 @@
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="8d478ce1-2467-4587-9e00-26078f923c28" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/AppData/Roaming/Python/Python37/site-packages/gecosistema_core/filesystem.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_numpy.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_sparse.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/gecosistema_gdal/gdal_utils.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/gecosistema_gdal/gdalwarp.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/gecosistema_gdal/ogr_utils.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/gecosistema_gdal/rasterlike.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/setup.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectId" id="1aB2WZOITgd6Xe5ajI6b4B97NsY" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -34,7 +49,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../gecosistema_core" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../nand" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -89,7 +104,21 @@
       <option name="project" value="LOCAL" />
       <updated>1641377285794</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="joinOn">
+      <created>1646732443607</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1646732443607</updated>
+    </task>
+    <task id="LOCAL-00007" summary="joinOn">
+      <created>1656952074983</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1656952074983</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -102,14 +131,14 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added Numpy2Raster" />
     <MESSAGE value="commit #1 del 19/08/2019" />
     <MESSAGE value="commit #1 del 20/01/2020&#10;-gdalwarp bug fixed" />
     <MESSAGE value="some fix, taudem deprecated" />
-    <option name="LAST_COMMIT_MESSAGE" value="some fix, taudem deprecated" />
+    <MESSAGE value="joinOn" />
+    <option name="LAST_COMMIT_MESSAGE" value="joinOn" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -118,6 +147,11 @@
           <url>file://$PROJECT_DIR$/gecosistema_gdal/taudem.py</url>
           <line>26</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/gecosistema_gdal/__init__.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

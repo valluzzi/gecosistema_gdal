@@ -1,4 +1,4 @@
-import os,re
+import os, re
 import setuptools
 
 PACKAGE_NAME    = "gecosistema_gdal"
@@ -32,6 +32,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     setup_requires=['gdal2numpy'],
-    install_requires=['rtree', 'gecosistema_core']
+    install_requires=['gecosistema_core']
 
 )
